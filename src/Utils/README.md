@@ -10,7 +10,7 @@ Logger::fLog(msg, Logger::type::error);
   2. Logger::type::warning
   3. Logger::type::info
  
- - #### Description 
+- #### Description 
    Log system adds messages to log file, checks file size, and if size more than 10mb renames it into pattern 
    \*filename\*\_\*date\*\_-\_\*time\*.log
    __*Demonstration:*__
