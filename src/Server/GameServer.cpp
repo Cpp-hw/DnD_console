@@ -24,7 +24,6 @@ HttpServer* pHttp_server;
 
 int main(int argc, char* argv[])
 {
-    //fUserLogIn1();
     
 	// read data from config.in file
 		//IniParser* pIni_parser = new IniParser("config.ini");
@@ -134,3 +133,20 @@ void fUserLogIn(std::string &json_response, nlohmann::json &json_request)
 }
 
 
+void fUserRegistration(std::string &json_response, nlohmann::json &json_request)
+{
+    DataBase data_base;
+    data_base.fConnection("localhost", "DnD_db", "dbpass", "DnD");
+    string username = json_request["username"];
+    string password = json_request["password"];
+    string email = json_request["email"];
+    string query = "INSERT INTO Users (username, password, email, is_active) VALUES ('" + username + "', '" + password + "', '" + email + "', 0);"; // creates query
+    
+    nlohmann::json json_result = data_base.fExecuteQuery(query); // executes query
+    cout << json_result << endl;
+    string query_result = json_result["result"];
+    if (query_result == "Success")
+        json_response = "{\"status\":\"success\", \"message\": \"registered\"}";
+    else
+        json_response = "{\"status\":\"fail\", \"message\": \"database error\"}";
+}
