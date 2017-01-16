@@ -7,7 +7,7 @@ boost::asio::io_service io_service;  // io_service represents your program's lin
 
 GameClient::GameClient()
 {
-	http_client = new HttpClient(io_service, "localhost", "33000"); //create http-client with options: host="localhost", port="33000"
+	_http_client = new HttpClient(io_service, "localhost", "15000"); //create http-client with options: host="localhost", port="33000"
 
 }
 
@@ -32,21 +32,21 @@ void GameClient::fMenu()
 			switch (choice)
 			{
 			case 1:
-				http_client->PostData("/api/userregister", UserActions::fRegistration().dump()); //send POST request for registration
+				_http_client->PostData("/api/userregister", UserActions::fRegistration().dump()); //send POST request for registration
 				io_service.run(); // run io_service
 
 				break;
 			case 2:
-				http_client->PostData("/api/userlogin", UserActions::fLogin().dump()); // send POST request for logining
+				_http_client->PostData("/api/userlogin", UserActions::fLogin().dump()); // send POST request for logining
 				
 				io_service.run();
-				game_session = http_client->fGetSession();
+				_game_session = _http_client->fGetSession();
 				break;
 			case 3:
-				http_client->PostData("/api/userlogout", game_session); // drop user session
+				_http_client->PostData("/api/userlogout", _game_session); // drop user session
 				io_service.run();
-				game_session = UserActions::fLogout(game_session);
-				http_client->fSetSession(game_session);
+				_game_session = UserActions::fLogout(_game_session);
+				_http_client->fSetSession(_game_session);
 				break;
 
 			}
@@ -61,5 +61,5 @@ void GameClient::fMenu()
 
 GameClient::~GameClient()
 {
-	delete http_client; 
+	delete _http_client; 
 }
