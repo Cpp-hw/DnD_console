@@ -1,0 +1,9 @@
+_ReSharper.Server/
+Release/
+Debug/
+*.filters
+*.opensdf
+*.sdf
+*.sln
+*.suo
+*.vcxproj
