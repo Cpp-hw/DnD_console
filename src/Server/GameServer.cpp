@@ -7,6 +7,8 @@
 // Nicholas Tsaruk
 // fbt.ksnv@gmail.com
 //
+// Olha Leskovska
+//
 
 #include "Includes/stdafx.hpp"
 #include "Includes/HttpServer.hpp"
@@ -20,6 +22,7 @@ void fParseRequest(std::string &path, std::map <std::string, std::string> &http_
 void fUserLogIn(std::string &json_response, nlohmann::json &json_request);
 void fUserRegistration(std::string &json_response, nlohmann::json &json_request);
 HttpServer* pHttp_server;
+DataBase data_base;
 
 
 int main(int argc, char* argv[])
@@ -74,8 +77,8 @@ void fParseRequest(std::string &path, std::map <std::string, std::string> &http_
 	{
 		if (path.find("/api/userlogin") != string::npos)
 			fUserLogIn(response, json_request);
-		else if (path.find("/api/userregister") != string::npos)
-			fUserRegistration(response, json_request);
+        else if (path.find("/api/userregister") != string::npos)
+            fUserRegistration(response, json_request);
 		else
 			response = "{\"error\": \"script is not implemented\"}";
 	}
@@ -87,7 +90,6 @@ void fParseRequest(std::string &path, std::map <std::string, std::string> &http_
  */
 void fUserLogIn(std::string &json_response, nlohmann::json &json_request)
 {
-	DataBase data_base;
 	data_base.fConnection("localhost", "DnD_db", "dbpass", "DnD");
 	string username = json_request["username"];
 	string password = json_request["password"];
@@ -132,15 +134,19 @@ void fUserLogIn(std::string &json_response, nlohmann::json &json_request)
 		json_response = "{\"status\":\"fail\", \"message\": \"database error\"}";
 }
 
-
 void fUserRegistration(std::string &json_response, nlohmann::json &json_request)
 {
-    DataBase data_base;
     data_base.fConnection("localhost", "DnD_db", "dbpass", "DnD");
     string username = json_request["username"];
+    DataValidator::fValidate(username, DataValidator::NAME); // checks the username
     string password = json_request["password"];
+    DataValidator::fValidate(password, DataValidator::PASSWORD); // checks the password
     string email = json_request["email"];
+    DataValidator::fValidate(email, DataValidator::EMAIL); // checks the email
+    
+    
     string query = "INSERT INTO Users (username, password, email, is_active) VALUES ('" + username + "', '" + password + "', '" + email + "', 0);"; // creates query
+    DataValidator::fValidate(query, DataValidator::SQL_INJECTION);
     
     nlohmann::json json_result = data_base.fExecuteQuery(query); // executes query
     cout << json_result << endl;
