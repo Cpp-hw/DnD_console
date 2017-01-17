@@ -47,7 +47,7 @@ private: /* see cpp file for the below functions descriptions*/
 public:
     void    fRun(void);
     bool    fSetResponse(const char* body, const unsigned int length, const string &content_type);
-    void    (*fGenerateResponse)(DataBase&, std::string&, std::map <std::string, std::string> &);    // pointer to user function that is called in case of path exception
+    void    (*fGenerateResponse)(std::string&, std::map <std::string, std::string> &);    // pointer to user function that is called in case of path exception
     HttpServer(int server_port, string &path_to_root);
     ~HttpServer(void);
 };
