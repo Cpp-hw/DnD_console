@@ -45,8 +45,8 @@ HttpServer::HttpServer(int server_port, string &path_to_root)
         unsigned long root_path_length = 0;
         char  buffer[4096]; buffer[0] = 0; // set null terminating character in case of pull path retrieving fail
         char** lppPart={nullptr};
-        GetFullPathNameA(root.data(), 4096, buffer, lppPart);
-        root = buffer;
+        GetFullPathNameA(_root.data(), 4096, buffer, lppPart);
+        _root = buffer;
     #else
         _root = realpath(_root.data(), nullptr); // full path to server's root on UNIX
     #endif
@@ -81,7 +81,7 @@ HttpServer::HttpServer(int server_port, string &path_to_root)
         }
     #endif
 
-    state_info += "Using "+root+" for server's root\n";
+    state_info += "Using "+_root+" for server's root\n";
 
     #ifdef _WIN32
         WSADATA wsaData;
@@ -122,7 +122,7 @@ HttpServer::HttpServer(int server_port, string &path_to_root)
     struct sockaddr_in serv_addr;
     memset(&serv_addr, 0, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(port);
+    serv_addr.sin_port = htons(_port);
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     if (::bind(_sfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) == -1)
     {
@@ -411,8 +411,8 @@ void HttpServer::fReset(void)
 
     if (_pFile != nullptr) // close file
     {
-        fclose(pFile);
-        pFile = nullptr;
+        fclose(_pFile);
+        _pFile = nullptr;
     }
 
     _request = "";
@@ -486,21 +486,21 @@ bool HttpServer::fError(unsigned short code, int condition)
     state_info += "HTTP/1.1 "+to_string(code)+" "+phrase+"\r\n";
 
     string tmp = "HTTP/1.1 "+to_string(code)+" "+phrase+"\r\n";
-    if (send(cfd, tmp.data(), tmp.length(), 0) < 0) // respond with Status-Line
+    if (send(_cfd, tmp.data(), tmp.length(), 0) < 0) // respond with Status-Line
         return false;
     tmp = "Connection: close\r\n";
-    if (send(cfd, tmp.data(), tmp.length(), 0) < 0) // respond with Connection header
+    if (send(_cfd, tmp.data(), tmp.length(), 0) < 0) // respond with Connection header
         return false;
     tmp = "Content-Length: "+to_string(error_response.length())+"\r\n";
-    if (send(cfd, tmp.data(), tmp.length(), 0) < 0) // respond with Content-Length header
+    if (send(_cfd, tmp.data(), tmp.length(), 0) < 0) // respond with Content-Length header
         return false;
     tmp = "Content-Type: text/html\r\n";
-    if (send(cfd, tmp.data(), tmp.length(), 0) < 0) // respond with Content-Type header
+    if (send(_cfd, tmp.data(), tmp.length(), 0) < 0) // respond with Content-Type header
         return false;
     tmp = "\r\n";
-    if (send(cfd, tmp.data(), tmp.length(), 0) < 0) // respond with CRLF
+    if (send(_cfd, tmp.data(), tmp.length(), 0) < 0) // respond with CRLF
         return false;
-    if (send(cfd, error_response.data(), error_response.length(), 0) == -1) // respond with message-body
+    if (send(_cfd, error_response.data(), error_response.length(), 0) == -1) // respond with message-body
         return false;
 
     // announce Response-Line
