@@ -7,3 +7,6 @@ Debug/
 *.sln
 *.suo
 *.vcxproj
+*.dll
+*.db
+*.opendb

@@ -1,6 +1,6 @@
 #include "Includes/IniParser.hpp"
 
-IniParser::IniParser(std::string path) :
+IniParser::IniParser(const std::string & path) :
 	                            _path(path)
 {
 }
@@ -64,7 +64,7 @@ std::map<std::string, std::string> IniParser::fGetParams()
 }
 
 
-void IniParser::fSetParams(std::map<std::string, std::string> new_params)
+void IniParser::fSetParams(const std::map<std::string, std::string> & new_params)
 {
 	std::ofstream                      file(_path.c_str());  // open file
 	std::map<std::string, std::string> old_params;           // old file params

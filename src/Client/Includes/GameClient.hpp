@@ -6,8 +6,9 @@
 
 class GameClient
 {
-	HttpClient *http_client;    // http-client object
-	std::string game_session;   // game session
+private:
+	HttpClient *_http_client;    // http-client object
+	std::string _game_session;   // game session
 public:
 	GameClient();
 
