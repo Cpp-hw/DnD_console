@@ -138,21 +138,22 @@ void fUserRegistration(std::string &json_response, nlohmann::json &json_request)
 {
     data_base.fConnection("localhost", "DnD_db", "dbpass", "DnD");
     string username = json_request["username"];
-    DataValidator::fValidate(username, DataValidator::NAME); // checks the username
     string password = json_request["password"];
-    DataValidator::fValidate(password, DataValidator::PASSWORD); // checks the password
     string email = json_request["email"];
-    DataValidator::fValidate(email, DataValidator::EMAIL); // checks the email
     
-    
-    string query = "INSERT INTO Users (username, password, email, is_active) VALUES ('" + username + "', '" + password + "', '" + email + "', 0);"; // creates query
-    DataValidator::fValidate(query, DataValidator::SQL_INJECTION);
-    
-    nlohmann::json json_result = data_base.fExecuteQuery(query); // executes query
-    cout << json_result << endl;
-    string query_result = json_result["result"];
-    if (query_result == "Success")
-        json_response = "{\"status\":\"success\", \"message\": \"registered\"}";
+    if (DataValidator::fValidate(username, DataValidator::NAME) &&
+        DataValidator::fValidate(password, DataValidator::PASSWORD) &&
+        DataValidator::fValidate(email, DataValidator::EMAIL)) // checks data
+    {
+        string query = "INSERT INTO Users (username, password, email, is_active) VALUES ('" + username + "', '" + password + "', '" + email + "', 0);"; // creates query
+        nlohmann::json json_result = data_base.fExecuteQuery(query); // executes query
+        cout << json_result << endl;
+        string query_result = json_result["result"];
+        if (query_result == "Success")
+            json_response = "{\"status\":\"success\", \"message\": \"registered\"}";
+        else
+            json_response = "{\"status\":\"fail\", \"message\": \"database error\"}";
+    }
     else
-        json_response = "{\"status\":\"fail\", \"message\": \"database error\"}";
+        json_response = "{\"status\":\"fail\", \"message\": \"invalid data\"}";
 }
