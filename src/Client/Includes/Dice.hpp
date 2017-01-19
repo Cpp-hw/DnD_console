@@ -9,6 +9,9 @@
 #ifndef SRC_DICE_HPP_
 #define SRC_DICE_HPP_
 
+#include <set>
+using std::multiset
+
 class Dice {
 private:
 	Dice();
@@ -28,6 +31,9 @@ public:
 
 	// Static method for multiple rolls
 	static int fMultipleRoll(const dices & dn, const int & times);
+    
+    // Static method for multiple rolls where we count the sum of defined number of dice
+    static int fMultipleRollSum(const dices & dn, const int & times, const int & dices_to_count);
 };
 
 #endif /* SRC_DICE_HPP_ */
