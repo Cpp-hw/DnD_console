@@ -16,7 +16,7 @@ private:
 	tcp::socket _socket;                  // socket for data exchange between client and server
 	std::string _server;                  // server for connect "localhost"
 	std::string _port;                    // port for connecting
-	std::string _session;                 // user session
+	std::string _response_string;         // response string from response buffer
 	boost::asio::streambuf _request;      // buffer for request
 	boost::asio::streambuf _response;     // buffer for response
 
@@ -36,8 +36,7 @@ private:
 
 		HttpClient(boost::asio::io_service& io_service, const std::string &server, const std::string &port);
 		
-		void PostData(const std::string &path, std::string &data);
-		void GetData(std::string &path);
-		std::string fGetSession();
-		void fSetSession(std::string &session);
+		void fPostData(const std::string &path, std::string &data);
+		void fGetData(std::string &path);
+		std::string fGetResponse();
 };

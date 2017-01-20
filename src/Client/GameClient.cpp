@@ -32,21 +32,27 @@ void GameClient::fMenu()
 			switch (choice)
 			{
 			case 1:
-				_http_client->PostData("/api/userregister", UserActions::fRegistration().dump()); //send POST request for registration
+			{
+				_http_client->fPostData("/api/userregister", UserActions::fRegistration().dump()); //send POST request for registration
 				io_service.run(); // run io_service
-
+			}
 				break;
 			case 2:
-				_http_client->PostData("/api/userlogin", UserActions::fLogin().dump()); // send POST request for logining
+			{
+				//_http_client->fPostData("/api/userlogin", UserActions::fLogin().dump()); // send POST request for logining
+
+				//io_service.run();
+				//_http_client->fGetResponse();
 				
-				io_service.run();
-				_game_session = _http_client->fGetSession();
+			}
 				break;
 			case 3:
-				_http_client->PostData("/api/userlogout", _game_session); // drop user session
+			{
+				_http_client->fPostData("/api/userlogout", _game_session); // drop user session
 				io_service.run();
 				_game_session = UserActions::fLogout(_game_session);
-				_http_client->fSetSession(_game_session);
+				//_http_client->fSetSession(_game_session);
+			}
 				break;
 
 			}

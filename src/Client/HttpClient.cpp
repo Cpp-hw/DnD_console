@@ -130,7 +130,7 @@ void HttpClient:: fHandleReadHeaders(const boost::system::error_code& err)
 		if (_response.size() > 0)
 		{
 			std::istream istream(&_response);
-			std::getline(istream, _session);
+			std::getline(istream, _response_string);
 			std::cout << &_response;
 			
 		}
@@ -166,7 +166,7 @@ void HttpClient:: fHandleReadContent(const boost::system::error_code& err)
 /*
     Method for getting data from server.
 */
-void HttpClient::GetData(std::string &path)
+void HttpClient::fGetData(std::string &path)
 {
 	// Form the request.
 	std::ostream request_stream(&_request);
@@ -179,7 +179,7 @@ void HttpClient::GetData(std::string &path)
 /*
 	Method for postring data to server.
 */
-void HttpClient::PostData(const std::string &path, std::string &data)
+void HttpClient::fPostData(const std::string &path, std::string &data)
 {
 	//Form the request
 	std::ostream request_stream(&_request);
@@ -196,15 +196,15 @@ void HttpClient::PostData(const std::string &path, std::string &data)
 /*
 	Method for getting user session.
 */
-std::string HttpClient::fGetSession()
+std::string HttpClient::fGetResponse()
 {
-	return this->_session;
+	return this->_response_string;
 }
 
 /*
 	Method for reset user session.
 */
-void HttpClient::fSetSession(std::string &session)
-{
-	this->_session = session;
-}
+//void HttpClient::fSetSession(std::string &session)
+//{
+//	this->_session = session;
+//}
