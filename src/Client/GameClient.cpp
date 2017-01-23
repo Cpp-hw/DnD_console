@@ -39,7 +39,8 @@ void GameClient::fDisplayDmMenu(const std::string &user_session)
 		{
 		case 1:
 		{
-			//leave your functionality here
+            std::string request = UserActions::fCreateNpc(user_session).dump();
+            _http_client->fPostData("/api/addnpc", request);
 		}
 		break;
 		case 2:
