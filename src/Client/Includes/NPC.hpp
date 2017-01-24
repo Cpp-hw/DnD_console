@@ -27,7 +27,7 @@ const int MAX_ABILITIES_SUM = 80;
 class Npc
 {
 private:
-    string _id_owner;
+    string _owner;
     string _name;
     string _type_npc;
     string _level;
@@ -43,7 +43,7 @@ public:
     
     Npc();
     
-    Npc(string &id_owner,
+    Npc(string &owner,
         string &name,
         string &type_npc,
         string &level,
@@ -59,7 +59,7 @@ public:
     
     Npc &operator = (const Npc &npc); // assignment operator =
     
-    void fSetOwner(const string id_owner); // setter for owner's id
+    void fSetOwner(const string owner); // setter for owner
     
     void fRandomizeAbilities(); // fills the character abilities by rolling dices
     
