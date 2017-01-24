@@ -30,7 +30,7 @@ CREATE TABLE Terrain (
     type VARCHAR(50) NOT NULL,
     width TINYINT UNSIGNED NOT NULL,
     height TINYINT UNSIGNED NOT NULL,
-    decription TEXT NOT NULL,
+    description TEXT NOT NULL,
     id_owner INT NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (id_owner) REFERENCES Users (id)
