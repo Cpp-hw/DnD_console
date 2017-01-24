@@ -27,9 +27,10 @@ CREATE TABLE Characters (
 CREATE TABLE Terrain (
     id INT NOT NULL AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL,
+    type VARCHAR(50) NOT NULL,
     width TINYINT UNSIGNED NOT NULL,
     height TINYINT UNSIGNED NOT NULL,
-    decription TEXT NOT NULL,
+    description TEXT NOT NULL,
     id_owner INT NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (id_owner) REFERENCES Users (id)
@@ -72,8 +73,7 @@ CREATE TABLE Abilities (
     );
 
 CREATE TABLE Sessions (
-    id INT NOT NULL AUTO_INCREMENT,
-    session_id VARCHAR(255) NOT NULL,
+    id INT NOT NULL AUTO_INCREMENT,    session_id VARCHAR(255) NOT NULL,
     id_user INT NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (id_user) REFERENCES Users (id),
