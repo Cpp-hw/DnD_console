@@ -73,7 +73,7 @@ json DataBase::fConnection(string host, string user_name, string password, strin
     else
     {
         connection_result["result"] = "success"; // insert "Result" as the json key and "Success" as its value
-        connection_result["message"] = "epen connection"; // insert "Message" as the json key and message as its value
+        connection_result["message"] = "open connection"; // insert "Message" as the json key and message as its value
     }
     return connection_result;
 }
