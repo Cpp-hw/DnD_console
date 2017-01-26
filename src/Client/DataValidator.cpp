@@ -102,7 +102,7 @@ bool DataValidator::fValidateLength(const std::string & length)
 		return false;
 	}
 
-	return len >= 4 && len < 32;
+	return len >= 1 && len < 32;
 }
 
 
