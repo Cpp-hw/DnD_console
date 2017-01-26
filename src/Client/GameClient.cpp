@@ -35,19 +35,23 @@ void GameClient::fDisplayDmMenu(std::string &host, std::string &port, const std:
 {
 	int choice = 0;
 
-	std::cout << "********** DM Mode **********" << std::endl;
-	std::cout << "1. Create NPC" << std::endl;
-	std::cout << "2. Create Terrain" << std::endl;
-	std::cout << "3. Full list of terrains" << std::endl;
-	std::cout << "4. Show my terrains" << std::endl;
-	std::cout << "5. Back to previous  menu" << std::endl;
-	std::cout << "Enter choice: ";  // user enter option 
+	
 
 
 	do
 	{
+		system("cls");
 
+		std::cout << "********** DM Mode **********" << std::endl;
+		std::cout << "1. Create NPC" << std::endl;
+		std::cout << "2. Create Terrain" << std::endl;
+		std::cout << "3. Full list of terrains" << std::endl;
+		std::cout << "4. Show my terrains" << std::endl;
+		std::cout << "5. Back to previous  menu" << std::endl;
+		std::cout << "Enter choice: ";  // user enter option 
+		
 		choice = fGetInput()-48;
+
 
 		switch (choice)
 		{
@@ -108,18 +112,23 @@ void GameClient::fDisplayPlayerMenu(const std::string &user_session)
 
 void GameClient::fSwitchMode(std::string &host,std::string &port, const std::string &user_session)
 {
+	
 	int mode = 0;
-	std::cout << "********** Game Modes **********" << std::endl;
-	std::cout << "1. Player Mode" << std::endl;
-	std::cout << "2. DM Mode" << std::endl;
-	std::cout << "3. Back to main menu" << std::endl;
-
-	std::cout << "Choose mode: ";
 
 	do
 	{
 
+		system("cls");
+
+		std::cout << "********** Game Modes **********" << std::endl;
+		std::cout << "1. Player Mode" << std::endl;
+		std::cout << "2. DM Mode" << std::endl;
+		std::cout << "3. Back to main menu" << std::endl;
+
+		std::cout << "Choose mode: ";
+
 		mode = fGetInput()-48;
+
 
 		switch (mode)
 		{
@@ -220,7 +229,7 @@ void GameClient::fMenu(std::string &host, std::string &port)
 			{
 				std::string request = UserActions::fLogin().dump();
 				std::string response;
-				SendRequest(host, port, "/api/userlogin", response, _game_session);
+				SendRequest(host, port, "/api/userlogout", response, _game_session);
 				_game_session = UserActions::fLogout(_game_session);
 				std::cout << "Response: " << response << std::endl;
 

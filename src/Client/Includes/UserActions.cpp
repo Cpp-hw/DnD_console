@@ -147,24 +147,21 @@ json UserActions::fCreateTerrain(const std::string &session)
 
 	terrain.SetOwner(session);
 
+
 	do
 	{
+		cin.clear();
+		cin.ignore();
 		std::cout << "Enter terrain name:" << std::endl;
 		std::getline(std::cin, terrain_name);
 
-		std::cin.ignore();
-
-
-		if (!DataValidator::fValidate(terrain_name, DataValidator::SQL_INJECTION))
-		{
+		if (!DataValidator::fValidate(terrain_name, DataValidator::SQL_INJECTION)) // name validation
 			std::cout << "You have entered invalid data, this value is prohibited signs !!!" << std::endl;
-		}
-		else
-		{
-			terrain.SetName(terrain_name);
-		}
 
-	} while (!DataValidator::fValidate(terrain_name, DataValidator::NAME));
+		else
+			terrain.SetName(terrain_name);
+	} while (!DataValidator::fValidate(terrain_name, DataValidator::SQL_INJECTION));
+
 
 	do
 	{
@@ -173,7 +170,7 @@ json UserActions::fCreateTerrain(const std::string &session)
 
 		if (!DataValidator::fValidate(width, DataValidator::LENGTH))
 		{
-			std::cout << "You input value less then 4 or more the 32 !!!" << std::endl;
+			std::cout << "You input value less then 1 or more the 32 !!!" << std::endl;
 		}
 		else
 		{
@@ -189,7 +186,7 @@ json UserActions::fCreateTerrain(const std::string &session)
 
 		if (!DataValidator::fValidate(height, DataValidator::LENGTH))
 		{
-			std::cout << "You input value less then 4 or more the 32 !!!" << std::endl;
+			std::cout << "You input value less then 1 or more the 32 !!!" << std::endl;
 		}
 		else
 		{
