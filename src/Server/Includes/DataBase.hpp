@@ -21,10 +21,6 @@ public:
     
     json fExecuteQuery(std::string sql_statement); // for executing a query
     
-    json fGetData(std::string sql_statement); // for getting Data from Database
-    
-    json fPutData(std::string sql_statement); // for putting Data into Database
-    
     ~DataBase();
 }; // class DataBase
 
