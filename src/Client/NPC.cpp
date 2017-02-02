@@ -37,6 +37,21 @@ Npc::Npc(string &owner,
     _charisma = charisma;
 }
 
+Npc::Npc(json &jsonData)
+{
+    _owner = jsonData["session"];
+    _name = jsonData["npc"];
+    _type_npc = jsonData["type"];
+    _level = jsonData["level"];
+    _hitpoints = jsonData["hitpoints"];
+    _strength = jsonData["strength"];
+    _dexterity = jsonData["dexterity"];
+    _constitution = jsonData["constitution"];
+    _intelligence = jsonData["intelligence"];
+    _wisdom = jsonData["wisdom"];
+    _charisma = jsonData["charisma"];
+}
+
 Npc::Npc(const Npc &npc)
 {
     _owner = npc._owner;
@@ -74,6 +89,106 @@ Npc &Npc::operator = (const Npc &npc)
 void Npc::fSetOwner(const string owner)
 {
     _owner = owner;
+}
+
+void Npc::fSetName(const string &name)
+{
+    _name = name;
+}
+
+void Npc::fSetType(const string &type)
+{
+    _type_npc = type;
+}
+
+void Npc::fSetLevel(const string &level)
+{
+    _level = level;
+}
+
+void Npc::fSetHitpoints(const string &hitpoints)
+{
+    _hitpoints = hitpoints;
+}
+
+void Npc::fSetStrength(const string &strength)
+{
+    _strength = strength;
+}
+
+void Npc::fSetDexterity(const string &dexterity)
+{
+    _dexterity = dexterity;
+}
+
+void Npc::fSetConstitution(const string &constitution)
+{
+    _constitution = constitution;
+}
+
+void Npc::fSetIntelligence(const string &intelligence)
+{
+    _intelligence = intelligence;
+}
+
+void Npc::fSetWisdom(const string &wisdom)
+{
+    _wisdom = wisdom;
+}
+
+void Npc::fSetCharisma(const string &charisma)
+{
+    _charisma = charisma;
+}
+
+string Npc::fGetName()
+{
+    return _name;
+}
+
+string Npc::fGetType()
+{
+    return _type_npc;
+}
+
+string Npc::fGetLevel()
+{
+    return _level;
+}
+
+string Npc::fGetHitpoints()
+{
+    return _hitpoints;
+}
+
+string Npc::fGetStrength()
+{
+    return _strength;
+}
+
+string Npc::fGetDexterity()
+{
+    return _dexterity;
+}
+
+string Npc::fGetConstitution()
+{
+    return _constitution;
+}
+
+string Npc::fGetIntelligence()
+{
+    return _intelligence;
+}
+
+string Npc::fGetWisdom()
+{
+    return _wisdom;
+}
+
+string Npc::fGetCharisma()
+{
+    return _charisma;
 }
 
 void Npc::fRandomizeAbilities() // fills the character abilities by rolling dices
@@ -360,3 +475,16 @@ json Npc::fToJson()
 }
 
 Npc::~Npc() {}
+
+string fShowMaxValue(const int sum)
+{
+    string answer;
+    if ((MAX_ABILITIES_SUM - sum) <= 20)
+    {
+        answer = "The maximum value for the hitpoints is " + to_string(MAX_ABILITIES_SUM - sum) + ".";
+    }
+    else
+        answer = "The maximum value for the hitpoints is 20.";
+    
+    return answer;
+}

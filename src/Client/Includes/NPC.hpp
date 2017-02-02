@@ -55,11 +55,40 @@ public:
         string &wisdom,
         string &charisma);
     
+    Npc(json &jsonData); // creates NPC from json
+    
     Npc(const Npc &npc); // copy constructor
     
     Npc &operator = (const Npc &npc); // assignment operator =
     
-    void fSetOwner(const string owner); // setter for owner
+    /*
+     Setters
+     */
+    void fSetOwner(const string owner);
+    void fSetName(const string &name);
+    void fSetType(const string &type);
+    void fSetLevel(const string &level);
+    void fSetHitpoints(const string &hitpoints);
+    void fSetStrength(const string &strength);
+    void fSetDexterity(const string &dexterity);
+    void fSetConstitution(const string &constitution);
+    void fSetIntelligence(const string &intelligence);
+    void fSetWisdom(const string &wisdom);
+    void fSetCharisma(const string &charisma);
+    
+    /*
+     Getters
+     */
+    string fGetName();
+    string fGetType();
+    string fGetLevel();
+    string fGetHitpoints();
+    string fGetStrength();
+    string fGetDexterity();
+    string fGetConstitution();
+    string fGetIntelligence();
+    string fGetWisdom();
+    string fGetCharisma();
     
     void fRandomizeAbilities(); // fills the character abilities by rolling dices
     
@@ -73,5 +102,7 @@ public:
     
     ~Npc();
 };
+
+string fShowMaxValue(const int sum);
 
 #endif /* Npc_hpp */
