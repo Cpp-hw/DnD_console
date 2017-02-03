@@ -19,7 +19,7 @@ json UserActions::fLogin()
 		user_login.find('"') != std::string::npos ||
 		user_login.length() == 0)
 	{
-		std::cout << "Invalid login! Empty spaces, ' or \" finded!\nEnter login: ";
+		std::cout << "Invalid login! Empty spaces, ' or \" found!\nEnter login: ";
 		std::getline(std::cin, user_login);
 	}
 
@@ -57,7 +57,7 @@ json UserActions::fRegistration()
 		user_username.find('"') != std::string::npos ||
 		user_username.length() == 0)
 	{
-		std::cout << "Invalid username! Empty spaces, ' or \" finded! Enter username: \n";
+		std::cout << "Invalid username! Empty spaces, ' or \" found! Enter username: \n";
 		std::getline(std::cin, user_username);
 	}
 
@@ -68,7 +68,7 @@ json UserActions::fRegistration()
 		user_email.find('\'') != std::string::npos ||
 		user_email.find('"') != std::string::npos)
 	{
-		std::cout << "Invalid email! Empty spaces, ' or \" finded! Enter email: \n";
+		std::cout << "Invalid email! Empty spaces, ' or \" found! Enter email: \n";
 		std::getline(std::cin, user_email);
 	}
 

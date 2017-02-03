@@ -290,7 +290,7 @@ void Npc::fSetAbilities() // asks user for defining abilities points
         string strength;
         do
         {
-            cout << "Input the strength-value: ";
+            cout << "Input the strength value: ";
             getline(cin, strength);
             
             if (!DataValidator::fValidate(strength, DataValidator::ABILITY))
@@ -304,7 +304,7 @@ void Npc::fSetAbilities() // asks user for defining abilities points
         string dexterity;
         do
         {
-            cout << "Input the dexterity-value: ";
+            cout << "Input the dexterity value: ";
             getline(cin, dexterity);
             
             if (!DataValidator::fValidate(dexterity, DataValidator::ABILITY))
@@ -318,7 +318,7 @@ void Npc::fSetAbilities() // asks user for defining abilities points
         string constitution;
         do
         {
-            cout << "Input the constitution-value: ";
+            cout << "Input the constitution value: ";
             getline(cin, constitution);
             
             if (!DataValidator::fValidate(constitution, DataValidator::ABILITY))
@@ -332,7 +332,7 @@ void Npc::fSetAbilities() // asks user for defining abilities points
         string intelligence;
         do
         {
-            cout << "Input the intelligence-value: ";
+            cout << "Input the intelligence value: ";
             getline(cin, intelligence);
             
             if (!DataValidator::fValidate(intelligence, DataValidator::ABILITY))
@@ -346,7 +346,7 @@ void Npc::fSetAbilities() // asks user for defining abilities points
         string wisdom;
         do
         {
-            cout << "Input the wisdom-value: ";
+            cout << "Input the wisdom value: ";
             getline(cin, wisdom);
             
             if (!DataValidator::fValidate(wisdom, DataValidator::ABILITY))
@@ -361,7 +361,7 @@ void Npc::fSetAbilities() // asks user for defining abilities points
         do
         {
             cout << "This ability is the last." << endl;
-            cout << "Input the charisma-value: ";
+            cout << "Input the charisma value: ";
             getline(cin, charisma);
             
             if (!DataValidator::fValidate(charisma, DataValidator::ABILITY))
@@ -372,7 +372,7 @@ void Npc::fSetAbilities() // asks user for defining abilities points
         sum += stoi(charisma);
         
         if (sum > MAX_ABILITIES_SUM)
-            cout << "The sum of all vability-values should be less than (or equal to) 80!\nTry again!" << endl;
+            cout << "The sum of all ability values should be less than (or equal to) 80!\nTry again!" << endl;
     } while (sum > MAX_ABILITIES_SUM);
 }
 
