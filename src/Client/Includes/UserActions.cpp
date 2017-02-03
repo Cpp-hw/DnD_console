@@ -189,7 +189,7 @@ json UserActions::fEditNpc(json &json_npc)
     string intelligence = json_npc["intelligence"];
     string wisdom = json_npc["wisdom"];
     string charisma = json_npc["charisma"];
-    int sum = stoi(hitpoints) + stoi(strength) + stoi(dexterity) + stoi(constitution) + stoi(intelligence) + stoi(wisdom) + stoi(charisma);
+    int sum =  stoi(strength) + stoi(dexterity) + stoi(constitution) + stoi(intelligence) + stoi(wisdom) + stoi(charisma);
     const int MAX_SUM = 80;
     
     enum npc_fields
