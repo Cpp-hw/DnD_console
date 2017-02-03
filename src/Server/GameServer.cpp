@@ -556,6 +556,59 @@ void fSendNpc(std::string &json_response, nlohmann::json &json_request)
         json_response = "{\"status\":\"fail\", \"message\": \"you are not logged in\"}";
 }
 
+void fEditNpc(std::string &json_response, nlohmann::json &json_request)
+{
+    string session_id = json_request["session_id"];
+    string id_user;
+    if (fRetrieveUserId(id_user, session_id))
+    {
+        string npc_id       = json_request["npc_id"];
+        string name         = json_request["npc"];
+        string type         = json_request["type"];
+        string hitpoints    = json_request["hitpoints"];
+        string level        = json_request["level"];
+        string strength     = json_request["strength"];
+        string dexterity    = json_request["dexterity"];
+        string constitution = json_request["constitution"];
+        string intelligence = json_request["intelligence"];
+        string wisdom       = json_request["wisdom"];
+        string charisma     = json_request["charisma"];
+        
+        if (DataValidator::fValidate(name,         DataValidator::SQL_INJECTION) &&
+            DataValidator::fValidate(type,         DataValidator::SQL_INJECTION) &&
+            DataValidator::fValidate(hitpoints,    DataValidator::SQL_INJECTION) &&
+            DataValidator::fValidate(level,        DataValidator::SQL_INJECTION) &&
+            DataValidator::fValidate(strength,     DataValidator::ABILITY) &&
+            DataValidator::fValidate(dexterity,    DataValidator::ABILITY) &&
+            DataValidator::fValidate(constitution, DataValidator::ABILITY) &&
+            DataValidator::fValidate(intelligence, DataValidator::ABILITY) &&
+            DataValidator::fValidate(wisdom,       DataValidator::ABILITY) &&
+            DataValidator::fValidate(charisma,     DataValidator::ABILITY))
+        {
+            string query = "UPDATE NPCs SET name = '" + name + "', type = '" + type + "', hitpoints = '" + hitpoints + "', level = '" + level + "', strength = '" + strength + "', dexterity = '" + dexterity + "', constitution = '" + constitution + "', intelligence = '" + intelligence + "', wisdom = '" + wisdom + "', charisma = '" + charisma + "' WHERE id_owner = '" + id_user + "' AND id = '" + npc_id + "';";
+            nlohmann::json json_result = data_base.fExecuteQuery(query);
+            cout << query << "\nRESULT:\n" << json_result << endl;
+            string query_result = json_result["result"];
+            
+            if (query_result == "success")
+            {
+                query = "SELECT id, name, type, level, hitpoints, strength, dexterity, constitution, intelligence, wisdom, charisma, id_owner FROM NPCs WHERE id_owner = '" + id_user + "' AND id = '" + npc_id + "';";
+                json_result = data_base.fExecuteQuery(query);
+                cout << query << "\nRESULT:\n" << json_result << endl;
+                string npc_id = json_result["data"][0]["id"];
+                json_response = "{\"status\":\"success\", \"npc_id\": \"" + npc_id + "\"}";
+                
+            }
+            else
+                json_response = "{\"status\":\"fail\", \"message\": \"npc was not updated, sql query execution failed\"}";
+        }
+        else
+            json_response = "{\"status\":\"fail\", \"message\": \"invalid data passed\"}";
+    }
+    else
+        json_response = "{\"status\":\"fail\", \"message\": \"you are not logged in\"}";
+}
+
 void fDeleteNpc(std::string &json_response, nlohmann::json &json_request)
 {
     string session_id = json_request["session_id"];
