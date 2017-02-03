@@ -177,13 +177,12 @@ json UserActions::fLoadNpc(const std::string &session)
 /*
  Method for editting one NPC of mine
  */
-json UserActions::fEditNpc(const std::string &session, const int id, json &json_npc)
+json UserActions::fEditNpc(json &json_npc)
 {
     cout << "********** NPC **********" << endl;
     Npc npc(json_npc);
     npc.fShowNpc();
     
-    string hitpoints = json_npc["hitpoints"];
     string strength = json_npc["strength"];
     string dexterity = json_npc["dexterity"];
     string constitution = json_npc["constitution"];
@@ -198,13 +197,12 @@ json UserActions::fEditNpc(const std::string &session, const int id, json &json_
         NAME = 1,
         TYPE = 2,
         LEVEL = 3,
-        HITPOINTS = 4,
-        STRENGTH = 5,
-        DEXTERITY = 6,
-        CONSTITUTION = 7,
-        INTELLIGENCE = 8,
-        WISDOM = 9,
-        CHARISMA = 10
+        STRENGTH = 4,
+        DEXTERITY = 5,
+        CONSTITUTION = 6,
+        INTELLIGENCE = 7,
+        WISDOM = 7,
+        CHARISMA = 9
     };
     
     bool exit = false;
@@ -212,6 +210,16 @@ json UserActions::fEditNpc(const std::string &session, const int id, json &json_
         system("cls");
         string choice;
         cout << "Choose some data you want to edit (to exit press \"0\":" << std::endl;
+        cout << "1. Name;" << endl;
+        cout << "2. Type;" << endl;
+        cout << "3. Level;" << endl;
+        cout << "4. Strength;" << endl;
+        cout << "5. Dexterity;" << endl;
+        cout << "6. Constitution;" << endl;
+        cout << "7. Intelligence;" << endl;
+        cout << "8. Wisdom;" << endl;
+        cout << "9. Charisma." << endl;
+        cout << "0. Back to previous menu" << std::endl;
         getline(cin, choice);
         
         switch (stoi(choice))
@@ -260,29 +268,6 @@ json UserActions::fEditNpc(const std::string &session, const int id, json &json_
                     if (stoi(level) > 0) // level validation
                         npc.fSetLevel(level);
                 } while (stoi(level) <= 0);
-            }
-                break;
-            case HITPOINTS:
-            {
-                cout << "The old data for hitpoints: " << npc.fGetHitpoints() << endl;
-                sum -= stoi(hitpoints);
-                cout << fShowMaxValue(sum) << endl;
-                
-                do
-                {
-                    cout << "Input the ammount of hitpoints: ";
-                    getline(cin, hitpoints);
-                    
-                    if (!DataValidator::fValidate(hitpoints, DataValidator::ABILITY))
-                        cout << "This datum should be more than 0 and less than (or equal to) 20!" << endl;
-                    else if ((sum + stoi(hitpoints)) > MAX_SUM)
-                        cout << "The sum of all vability-values should be less than (or equal to) 80!" << endl;
-                    else
-                    {
-                        npc.fSetHitpoints(hitpoints);
-                        sum += stoi(hitpoints);
-                    }
-                } while (!DataValidator::fValidate(hitpoints, DataValidator::ABILITY) && sum <= MAX_SUM);
             }
                 break;
             case STRENGTH:
@@ -434,8 +419,6 @@ json UserActions::fEditNpc(const std::string &session, const int id, json &json_
     } while (!exit);
     
     json request;
-    //request["session_id"] = session;
-    request["npc_id"] = id;
     request += npc.fToJson();
     
     return request;
