@@ -86,10 +86,10 @@ void GameClient::fDisplayDmMenu(std::string &host, std::string &port, const std:
             auto temp_request = UserActions::fLoadNpc(_game_session).dump();
             std::string temp_response;
             SendRequest(HttpClient::_POST, host, port, "/api/loadnpc", temp_response, temp_request);
-            json response_json = temp_response;
-            string id = response_json["npc_id"];
+            json response_json = json::parse(temp_response.c_str());
+            response_json.erase("status");
             
-            auto request = UserActions::fEditNpc(_game_session, stoi(id), response_json).dump();
+            auto request = UserActions::fEditNpc(response_json).dump();
             std::string response;
             SendRequest(HttpClient::_POST, host, port, "/api/editnpc", response, request);
             std::cout << "Respone: " << response << std::endl;
