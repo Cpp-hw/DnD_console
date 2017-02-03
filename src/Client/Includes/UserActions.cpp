@@ -183,13 +183,14 @@ json UserActions::fEditNpc(json &json_npc)
     Npc npc(json_npc);
     npc.fShowNpc();
     
+    string npc_id = json_npc["id"];
     string strength = json_npc["strength"];
     string dexterity = json_npc["dexterity"];
     string constitution = json_npc["constitution"];
     string intelligence = json_npc["intelligence"];
     string wisdom = json_npc["wisdom"];
     string charisma = json_npc["charisma"];
-    int sum =  stoi(strength) + stoi(dexterity) + stoi(constitution) + stoi(intelligence) + stoi(wisdom) + stoi(charisma);
+    int sum = stoi(strength) + stoi(dexterity) + stoi(constitution) + stoi(intelligence) + stoi(wisdom) + stoi(charisma);
     const int MAX_SUM = 80;
     
     enum npc_fields
@@ -419,7 +420,8 @@ json UserActions::fEditNpc(json &json_npc)
     } while (!exit);
     
     json request;
-    request += npc.fToJson();
+    request = npc.fToJson();
+    request["npc_id"] = npc_id;
     
     return request;
 }
