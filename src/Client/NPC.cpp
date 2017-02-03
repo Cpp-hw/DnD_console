@@ -14,7 +14,7 @@ Npc::Npc()
 
 Npc::Npc(string &owner,
          string &name,
-         string &type_npc,
+         string &type,
          string &level,
          string &hitpoints,
          string &strength,
@@ -26,7 +26,7 @@ Npc::Npc(string &owner,
 {
     _owner = owner,
     _name = name;
-    _type_npc = type_npc;
+    _type = type;
     _level = level;
     _hitpoints = hitpoints;
     _strength = strength;
@@ -41,7 +41,7 @@ Npc::Npc(json &jsonData)
 {
     _owner = jsonData["session"];
     _name = jsonData["npc"];
-    _type_npc = jsonData["type"];
+    _type = jsonData["type"];
     _level = jsonData["level"];
     _hitpoints = jsonData["hitpoints"];
     _strength = jsonData["strength"];
@@ -56,7 +56,7 @@ Npc::Npc(const Npc &npc)
 {
     _owner = npc._owner;
     _name = npc._name;
-    _type_npc = npc._type_npc;
+    _type = npc._type;
     _hitpoints = npc._hitpoints;
     _level = npc._level;
     _strength = npc._strength;
@@ -74,7 +74,7 @@ Npc &Npc::operator = (const Npc &npc)
     
     _owner = npc._owner;
     _name = npc._name;
-    _type_npc = npc._type_npc;
+    _type = npc._type;
     _hitpoints = npc._hitpoints;
     _level = npc._level;
     _strength = npc._strength;
@@ -98,7 +98,7 @@ void Npc::fSetName(const string &name)
 
 void Npc::fSetType(const string &type)
 {
-    _type_npc = type;
+    _type = type;
 }
 
 void Npc::fSetLevel(const string &level)
@@ -148,7 +148,7 @@ string Npc::fGetName()
 
 string Npc::fGetType()
 {
-    return _type_npc;
+    return _type;
 }
 
 string Npc::fGetLevel()
@@ -407,17 +407,17 @@ void Npc::fAddNpc() // creates NPC
             _name = name;
     } while (!DataValidator::fValidate(name, DataValidator::SQL_INJECTION));
     
-    string type_npc;
+    string type;
     do
     {
         cout << "Input the NPC's type: ";
-        getline(cin, type_npc);
+        getline(cin, type);
         
-        if (!DataValidator::fValidate(type_npc, DataValidator::SQL_INJECTION)) // type_NPC validation
+        if (!DataValidator::fValidate(type, DataValidator::SQL_INJECTION)) // type validation
             cout << "This datum should consist of letters!" << endl;
         else
-            _type_npc = type_npc;
-    } while (!DataValidator::fValidate(type_npc, DataValidator::SQL_INJECTION));
+            _type = type;
+    } while (!DataValidator::fValidate(type, DataValidator::SQL_INJECTION));
     
     int choice;
     cout << "Choose the way to fill the NPC's abilities:" << endl;
@@ -445,7 +445,7 @@ void Npc::fAddNpc() // creates NPC
 void Npc::fShowNpc()
 {
     cout << "Name: " << _name << endl;
-    cout << "Type: " << _type_npc << endl;
+    cout << "Type: " << _type << endl;
     cout << "Level: " << _level << endl;
     cout << "Hitpoints: " << _hitpoints << endl;
     cout << "Strength: " << _strength << endl;
@@ -461,7 +461,7 @@ json Npc::fToJson()
     json npc;
     npc["session_id"] = _owner;
     npc["npc"] = _name;
-    npc["type"] = _type_npc;
+    npc["type"] = _type;
     npc["level"] = _level;
     npc["hitpoints"] = _hitpoints;
     npc["strength"] = _strength;

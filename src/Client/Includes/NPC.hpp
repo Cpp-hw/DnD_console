@@ -29,7 +29,7 @@ class Npc
 private:
     string _owner;
     string _name;
-    string _type_npc;
+    string _type;
     string _level;
     string _hitpoints;
     string _strength;
@@ -45,7 +45,7 @@ public:
     
     Npc(string &owner,
         string &name,
-        string &type_npc,
+        string &type,
         string &level,
         string &hitpoints,
         string &strength,

@@ -91,7 +91,7 @@ void GameClient::fDisplayDmMenu(std::string &host, std::string &port, const std:
             
             auto request = UserActions::fEditNpc(_game_session, stoi(id), response_json).dump();
             std::string response;
-            SendRequest(host, port, "/api/editnpc", response, request);
+            SendRequest(HttpClient::_POST, host, port, "/api/editnpc", response, request);
             std::cout << "Respone: " << response << std::endl;
         }
             break;
