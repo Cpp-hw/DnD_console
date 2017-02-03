@@ -194,21 +194,11 @@ string Npc::fGetCharisma()
 void Npc::fRandomizeAbilities() // fills the character abilities by rolling dices
 {
     _level = "1";
+    _hitpoints = "100";
     
     int sum;
     do
     {
-        sum = 0;
-        string hitpoints;
-        do
-        {
-            hitpoints = to_string(Dice::fMultipleRollSum(Dice::D4, 4, 3));
-            
-            if (DataValidator::fValidate(hitpoints, DataValidator::ABILITY))
-                _hitpoints = hitpoints;
-        } while (!DataValidator::fValidate(hitpoints, DataValidator::ABILITY));
-        sum += stoi(hitpoints);
-        
         string strength;
         do
         {
@@ -283,24 +273,20 @@ void Npc::fSetAbilities() // asks user for defining abilities points
             _level = level;
     } while (stoi(level) <= 0);
     
+    string hitpoints;
+    do
+    {
+        cout << "Input the hitpoints ammount: ";
+        getline(cin, hitpoints);
+        
+        if (stoi(hitpoints) > 0) // level validation
+            _hitpoints = levehitpointsl;
+    } while (stoi(hitpoints) <= 0);
+    
     int sum;
     do
     {
         sum = 0;
-        string hitpoints;
-        do
-        {
-            cout << "Input the ammount of hitpoints: ";
-            getline(cin, hitpoints);
-            
-            if (!DataValidator::fValidate(hitpoints, DataValidator::ABILITY))
-                cout << "This datum should be more than 0 and less than (or equal to) 20!" << endl;
-            else
-                _hitpoints = hitpoints;
-        } while (!DataValidator::fValidate(hitpoints, DataValidator::ABILITY));
-        sum += stoi(hitpoints);
-        
-        cout << MAX_ABILITIES_SUM - sum << " points left." << endl;
         string strength;
         do
         {
