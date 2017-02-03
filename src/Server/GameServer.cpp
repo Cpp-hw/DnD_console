@@ -22,6 +22,10 @@ void fUserLogIn(std::string &json_response, nlohmann::json &json_request);
 bool fRetrieveUserId(std::string &id_user, std::string &session_id);
 void fSaveTerrain(std::string &json_response, nlohmann::json &json_request);
 void fSaveNpc(std::string &json_response, nlohmann::json &json_request);
+void fSendOwnNpcsList(std::string &json_response, nlohmann::json &json_request);
+void fSendNpc(std::string &json_response, nlohmann::json &json_request);
+void fEditNpc(std::string &json_response, nlohmann::json &json_request);
+void fDeleteNpc(std::string &json_response, nlohmann::json &json_request);
 void fSendTerrain(std::string &json_response, nlohmann::json &json_request);
 void fSendDefinedTerrains(std::string &json_response, nlohmann::json &json_request);
 void fSendOwnTerrainsList(std::string &json_response, nlohmann::json &json_request);
@@ -111,6 +115,14 @@ void fParseRequest(std::string &path, std::map <std::string, std::string> &http_
                         fSendOwnTerrainsList(response, json_request);
                     else if (path.find("/api/addnpc") != string::npos)
                         fSaveNpc(response, json_request);
+                    else if (path.find("/api/loadmynpcslist") != string::npos)
+                        fSendOwnNpcsList(response, json_request);
+                    else if (path.find("/api/loadnpc") != string::npos)
+                        fSendNpc(response, json_request);
+                    else if (path.find("/api/editnpc") != string::npos)
+                        fEditNpc(response, json_request);
+                    else if (path.find("/api/deletenpc") != string::npos)
+                        fDeleteNpc(response, json_request);
                     else
                     	response = "{\"status\": \"fail\",\"message\": \"requested API is not implemented\"}";
                 }
@@ -282,7 +294,7 @@ void fSaveNpc(std::string &json_response, nlohmann::json &json_request)
     if (fRetrieveUserId(id_user, session_id))
     {
         string name         = json_request["npc"];
-        string type_npc     = json_request["type"];
+        string type         = json_request["type"];
         string hitpoints    = json_request["hitpoints"];
         string level        = json_request["level"];
         string strength     = json_request["strength"];
@@ -293,7 +305,7 @@ void fSaveNpc(std::string &json_response, nlohmann::json &json_request)
         string charisma     = json_request["charisma"];
 
         if (DataValidator::fValidate(name,         DataValidator::NAME) &&
-    		DataValidator::fValidate(type_npc,     DataValidator::SQL_INJECTION) &&
+    		DataValidator::fValidate(type,         DataValidator::SQL_INJECTION) &&
 			DataValidator::fValidate(hitpoints,    DataValidator::SQL_INJECTION) &&
 			DataValidator::fValidate(level,        DataValidator::SQL_INJECTION) &&
 			DataValidator::fValidate(strength,     DataValidator::ABILITY) &&
@@ -303,7 +315,7 @@ void fSaveNpc(std::string &json_response, nlohmann::json &json_request)
 			DataValidator::fValidate(wisdom,       DataValidator::ABILITY) &&
 			DataValidator::fValidate(charisma,     DataValidator::ABILITY)) // checks data
         {
-			string query = "INSERT INTO NPCs (name, type_npc, hitpoints, level, strength, dexterity, constitution, intelligence, wisdom, charisma, id_owner) VALUES ('"+name+"', '"+type_npc+"', '"+hitpoints+"', '"+level+"', '"+strength+"', '"+dexterity+"', '"+constitution+"', '"+intelligence+"', '"+wisdom+"', '"+charisma+"', '"+id_user+"');";
+			string query = "INSERT INTO NPCs (name, type, hitpoints, level, strength, dexterity, constitution, intelligence, wisdom, charisma, id_owner) VALUES ('"+name+"', '"+type+"', '"+hitpoints+"', '"+level+"', '"+strength+"', '"+dexterity+"', '"+constitution+"', '"+intelligence+"', '"+wisdom+"', '"+charisma+"', '"+id_user+"');";
 			nlohmann::json json_result = data_base.fExecuteQuery(query);
 			cout << query << "\nRESULT:\n" << json_result << endl;
 			string query_result = json_result["result"];
@@ -446,6 +458,122 @@ void fSendOwnTerrainsList(std::string &json_response, nlohmann::json &json_reque
         }
         else
             json_response = "{\"status\":\"fail\", \"message\": \"list of your terrains is not loaded, sql query execution failed\"}";
+    }
+    else
+        json_response = "{\"status\":\"fail\", \"message\": \"you are not logged in\"}";
+}
+
+void fSendOwnNpcsList(std::string &json_response, nlohmann::json &json_request)
+{
+    string session_id = json_request["session_id"];
+    string id_user;
+    
+    if (fRetrieveUserId(id_user, session_id))
+    {
+        string query = "SELECT id, name, type, hitpoints, level, strength, dexterity, constitution, intelligence, wisdom, charisma, id_owner FROM NPCs WHERE id_owner = " + id_user + ";";
+        nlohmann::json json_result = data_base.fExecuteQuery(query);
+        
+        cout << query << "\nRESULT:\n" << json_result << endl;
+        string query_result = json_result["result"];
+        
+        if (query_result == "success")
+        {
+            string rows = json_result["rows"];
+            int rows_qtt = stoi(rows);
+            if (rows_qtt > 0)
+            {
+                json_response = "{\"status\":\"success\", \"npcs_quantity\":\"" + rows + "\", \"list\": [";
+                while (rows_qtt--)
+                {
+                    string npc_id = json_result["data"][rows_qtt]["id"];
+                    string npc = json_result["data"][rows_qtt]["name"];
+                    string type = json_result["data"][rows_qtt]["type"];
+                    string hitpoints = json_result["data"][rows_qtt]["hitpoints"];
+                    string level = json_result["data"][rows_qtt]["level"];
+                    string strength = json_result["data"][rows_qtt]["strength"];
+                    string dexterity = json_result["data"][rows_qtt]["dexterity"];
+                    string constitution = json_result["data"][rows_qtt]["constitution"];
+                    string intelligence = json_result["data"][rows_qtt]["intelligence"];
+                    string wisdom = json_result["data"][rows_qtt]["wisdom"];
+                    string charisma = json_result["data"][rows_qtt]["charisma"];
+                    string id_owner = json_result["data"][rows_qtt]["id_owner"];
+                    json_response += "{\"npc\": \"" + npc + "\", \"npc_id\": \"" + npc_id + "\", \"type\": \"" + type + "\", \"hitpoints\": \"" + hitpoints + "\", \"level\": \"" + level + "\", \"strength\": \"" + strength + "\", \"dexterity\": \"" + dexterity + "\", \"constitution\": \"" + constitution + "\", \"intelligence\": \"" + intelligence + "\", \"wisdom\": \"" + wisdom + "\", \"charisma\": \"" + charisma + "\", \"id_owner\": \"" + id_owner + "\"}";
+                    if (rows_qtt)
+                        json_response += ",";
+                }
+                json_response += "]}";
+            }
+            else
+                json_response = "{\"status\":\"warning\", \"message\": \"list of your npcs is empty\"}";
+        }
+        else
+            json_response = "{\"status\":\"fail\", \"message\": \"list of your npcs is not loaded, sql query execution failed\"}";
+    }
+    else
+        json_response = "{\"status\":\"fail\", \"message\": \"you are not logged in\"}";
+}
+
+void fSendNpc(std::string &json_response, nlohmann::json &json_request)
+{
+    string session_id = json_request["session_id"];
+    string id_user;
+    
+    if (fRetrieveUserId(id_user, session_id))
+    {
+        string npc_id = json_request["npc_id"];
+        string query = "SELECT id, name, type, level, hitpoints, strength, dexterity, constitution, intelligence, wisdom, charisma, id_owner FROM NPCs WHERE id = " + npc_id + ";";
+        nlohmann::json json_result = data_base.fExecuteQuery(query);
+        
+        cout << query << "\nRESULT:\n" << json_result << endl;
+        string query_result = json_result["result"];
+        
+        if (query_result == "success")
+        {
+            string rows = json_result["rows"];
+            if (stoi(rows) > 0)
+            {
+                string npc = json_result["data"][0]["name"];
+                string type = json_result["data"][0]["type"];
+                string level = json_result["data"][0]["level"];
+                string hitpoints = json_result["data"][0]["hitpoints"];
+                string strength = json_result["data"][0]["strength"];
+                string dexterity = json_result["data"][0]["dexterity"];
+                string constitution = json_result["data"][0]["constitution"];
+                string intelligence = json_result["data"][0]["intelligence"];
+                string wisdom = json_result["data"][0]["wisdom"];
+                string charisma = json_result["data"][0]["charisma"];
+                string id_owner = json_result["data"][0]["id_owner"];
+                
+                json_response = "{\"status\":\"success\", \"npc\":\"" + npc + "\", \"id\": \"" + npc_id + "\", \"type\": \"" + type + "\", \"level\": \"" + level + "\", \"hitpoints\": \"" + hitpoints + "\", \"strength\": \"" + strength + "\", \"dexterity\": \"" + dexterity + "\", \"constitution\": \"" + constitution + "\", \"intelligence\": \"" + intelligence + "\", \"wisdom\": \"" + wisdom + "\", \"charisma\": \"" + charisma + "\", \"id_owner\": \"" + id_owner + "\"}";
+            }
+            else
+                json_response = "{\"status\":\"fail\", \"message\": \"no your npc with this id\"}";
+        }
+        else
+            json_response = "{\"status\":\"fail\", \"message\": \"npc is not loaded, sql query execution failed\"}";
+    }
+    else
+        json_response = "{\"status\":\"fail\", \"message\": \"you are not logged in\"}";
+}
+
+void fDeleteNpc(std::string &json_response, nlohmann::json &json_request)
+{
+    string session_id = json_request["session_id"];
+    string id_user;
+    
+    if (fRetrieveUserId(id_user, session_id))
+    {
+        string npc_id = json_request["npc_id"];
+        string query = "DELETE FROM NPCs WHERE id_owner = '" + id_user + "' AND id = '" + npc_id + "' LIMIT 1;";
+        nlohmann::json json_result = data_base.fExecuteQuery(query);
+        
+        cout << query << "\nRESULT:\n" << json_result << endl;
+        string query_result = json_result["result"];
+        
+        if (query_result == "success")
+            json_response = "{\"status\":\"success\", \"message\": \"your npc with this id was deleted\"}";
+        else
+            json_response = "{\"status\":\"fail\", \"message\": \"npc is not deleted, sql query execution failed\"}";
     }
     else
         json_response = "{\"status\":\"fail\", \"message\": \"you are not logged in\"}";
