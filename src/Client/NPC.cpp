@@ -279,8 +279,8 @@ void Npc::fSetAbilities() // asks user for defining abilities points
         cout << "Input the hitpoints ammount: ";
         getline(cin, hitpoints);
         
-        if (stoi(hitpoints) > 0) // level validation
-            _hitpoints = levehitpointsl;
+        if (stoi(hitpoints) > 0) // hitpoints validation
+            _hitpoints = hitpoints;
     } while (stoi(hitpoints) <= 0);
     
     int sum;
