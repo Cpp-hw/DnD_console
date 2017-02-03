@@ -210,16 +210,16 @@ json UserActions::fEditNpc(json &json_npc)
         system("cls");
         string choice;
         cout << "Choose some data you want to edit (to exit press \"0\":" << std::endl;
-        cout << "1. Name;" << endl;
-        cout << "2. Type;" << endl;
-        cout << "3. Level;" << endl;
-        cout << "4. Strength;" << endl;
-        cout << "5. Dexterity;" << endl;
-        cout << "6. Constitution;" << endl;
-        cout << "7. Intelligence;" << endl;
-        cout << "8. Wisdom;" << endl;
-        cout << "9. Charisma." << endl;
-        cout << "0. Back to previous menu" << std::endl;
+        cout << "1 - name;" << endl;
+        cout << "2 - type;" << endl;
+        cout << "3 - level;" << endl;
+        cout << "4 - strength;" << endl;
+        cout << "5 - dexterity;" << endl;
+        cout << "6 - constitution;" << endl;
+        cout << "7 - intelligence;" << endl;
+        cout << "8 - wisdom;" << endl;
+        cout << "9 - charisma." << endl;
+        cout << "0 - back to previous menu" << std::endl;
         getline(cin, choice);
         
         switch (stoi(choice))
