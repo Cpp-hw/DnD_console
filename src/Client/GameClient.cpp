@@ -27,24 +27,25 @@ void SendRequest(const HttpClient::Methods &method, std::string &host, std::stri
 	response = http_client->fGetResponse();
 	delete http_client;
 	delete io_service;
-
 }
 
 void GameClient::fDisplayDmMenu(std::string &host, std::string &port, const std::string &user_session)
 {
-	int choice = 0;
-
-	
+	int choice = -1;
 
 	do
 	{
 		std::cout << "********** DM Mode **********" << std::endl;
 		std::cout << "1. Create NPC" << std::endl;
-		std::cout << "2. Create Terrain" << std::endl;
-		std::cout << "3. Full list of terrains" << std::endl;
-		std::cout << "4. Show my terrains" << std::endl;
-		std::cout << "5. Load terrain by id" << std::endl;
-		std::cout << "6. Back to previous  menu" << std::endl;
+        std::cout << "2. Show my NPCs" << std::endl;
+        std::cout << "3. Load NPC by it's id" << std::endl;
+        std::cout << "4. Edit NPC by it's id" << std::endl;
+        std::cout << "5. Delete NPC by it's id" << std::endl;
+		std::cout << "6. Create Terrain" << std::endl;
+		std::cout << "7. Full list of terrains" << std::endl;
+		std::cout << "8. Show my terrains" << std::endl;
+		std::cout << "9. Load terrain by id" << std::endl;
+		std::cout << "0. Back to previous  menu" << std::endl;
 		std::cout << "Enter choice: ";  // user enter option 
 
 		choice = fGetInput()-48;
@@ -62,9 +63,48 @@ void GameClient::fDisplayDmMenu(std::string &host, std::string &port, const std:
             //_http_client->fPostData("/api/addnpc", request);
 		}
 		break;
-		case 2:
+        case 2:
+        {
+            auto request = UserActions::fLoadMyNpcs(_game_session).dump();
+            std::string response;
+            SendRequest(HttpClient::_POST, host, port, "/api/loadmynpcslist", response, request);
+            std::cout << "Response: " << response << std::endl;
+            
+        }
+            break;
+        case 3:
+        {
+            auto request = UserActions::fLoadNpc(_game_session).dump();
+            std::string response;
+            SendRequest(HttpClient::_POST, host, port, "/api/loadnpc", response, request);
+            std::cout << "Respone: " << response << std::endl;
+        }
+            break;
+        case 4:
+        {
+            std::cout << "Which NPC do you want to edit? ";
+            auto temp_request = UserActions::fLoadNpc(_game_session).dump();
+            std::string temp_response;
+            SendRequest(HttpClient::_POST, host, port, "/api/loadnpc", temp_response, temp_request);
+            json response_json = temp_response;
+            string id = response_json["npc_id"];
+            
+            auto request = UserActions::fEditNpc(_game_session, stoi(id), response_json).dump();
+            std::string response;
+            SendRequest(host, port, "/api/editnpc", response, request);
+            std::cout << "Respone: " << response << std::endl;
+        }
+            break;
+        case 5:
+        {
+            auto request = UserActions::fDeleteNpc(_game_session).dump();
+            std::string response;
+            SendRequest(HttpClient::_POST, host, port, "/api/deletenpc", response, request);
+            std::cout << "Respone: " << response << std::endl;
+        }
+            break;
+		case 6:
 		{
-
 			std::string request = UserActions::fCreateTerrain(user_session).dump();
 			std::string response;
 			SendRequest(HttpClient::_POST,host, port, "/api/addterrain", response, request);
@@ -72,10 +112,9 @@ void GameClient::fDisplayDmMenu(std::string &host, std::string &port, const std:
 
 			//std::string request = UserActions::fCreateTerrain(user_session).dump();
 			//_http_client->fPostData("/api/addterrain", request);
-
 		}
 		break;
-		case 3:
+		case 7:
 		{
 
 			std::string request = UserActions::fShowFullListOfTerrains(_game_session).dump();
@@ -88,16 +127,15 @@ void GameClient::fDisplayDmMenu(std::string &host, std::string &port, const std:
 			//_http_client->fPostData("/api/loadterrain",request);
 		}
 		break;
-		case 4:
+		case 8:
 		{
 			auto request = UserActions::fLoadMyTerrains(_game_session).dump();
 			std::string response;
 			SendRequest(HttpClient::_POST,host, port, "/api/loadmyterrainslist", response, request);
 			std::cout << "Response: " << response << std::endl;
-
 		}
 		break;
-		case 5:
+		case 9:
 		{
 			auto request = UserActions::fLoadTerrain(_game_session).dump();
 			std::string response;
@@ -105,19 +143,18 @@ void GameClient::fDisplayDmMenu(std::string &host, std::string &port, const std:
 			std::cout << "Respone: " << response << std::endl;
 		}
 		break;
-		case 6:
+		case 0:
 			break;
 		default:
 			std::cout << "Wrong menu option !!!" << std::endl;
 			break;
 		}
-	} while (choice != 6);
-
+	} while (choice != 0);
 }
 
 void GameClient::fDisplayPlayerMenu(std::string &host, std::string &port,const std::string &user_session)
 {
-	int choice = 0;
+	int choice = -1;
 	
 	do
 	{
@@ -157,12 +194,12 @@ void GameClient::fDisplayPlayerMenu(std::string &host, std::string &port,const s
 		}
 		break;
 		}
-	} while (choice != 4);
+	} while (choice != 0);
 }
 
 void GameClient::fSwitchMode(std::string &host,std::string &port, const std::string &user_session)
 {
-	int mode = 0;
+	int mode = -1;
 
 	do
 	{
@@ -187,14 +224,14 @@ void GameClient::fSwitchMode(std::string &host,std::string &port, const std::str
 			fDisplayDmMenu(host,port,user_session);
 		}
 		break;
-		case 3:
+		case 0:
 		break;
 		default:
 			std::cout << "Wrong menu option !!!" << std::endl;
 			break;
 		}
 
-	} while (mode != 3);
+	} while (mode != 0);
 }
 
 void GameClient::fDisplayMainMenu()
@@ -203,13 +240,13 @@ void GameClient::fDisplayMainMenu()
 	std::cout << "1. User registration" << std::endl;
 	std::cout << "2. User login" << std::endl;
 	std::cout << "3. User logout" << std::endl;
-	std::cout << "4. Exit" << std::endl;
+	std::cout << "0. Exit" << std::endl;
 	std::cout << "Enter choice: ";  // user enter option 
 }
 
 void GameClient::fMenu(std::string &host, std::string &port)
 {
-	int choice = 0;
+	int choice = -1;
 
 
 	try
@@ -282,14 +319,14 @@ void GameClient::fMenu(std::string &host, std::string &port)
 				//io_service.run();
 			}
 			break;
-			case 4:
+			case 0:
 				break;
 			default:
 				std::cout << "Wrong menu option !!!" << std::endl;
 				break;
 			}
 
-		} while (choice != 4);
+		} while (choice != 0);
 	}
 	catch (std::exception& e)
 	{

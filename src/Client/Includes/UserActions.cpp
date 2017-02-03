@@ -136,6 +136,339 @@ json UserActions::fCreateNpc(const std::string &session)
     return npc.fToJson();
 }
 
+/*
+ Method for loading the list of NPCs of mine
+ */
+json UserActions::fLoadMyNpcs(const std::string &session)
+{
+    json request;
+    request["session_id"] = session;
+    return request;
+}
+
+/*
+ Method for loading one my NPC by its id
+ */
+json UserActions::fLoadNpc(const std::string &session)
+{
+    json request;
+    request["session_id"] = session;
+    
+    std::string npc_id;
+    do
+    {
+        std::cout << "Input the NPC's id:\n";
+        std::getline(std::cin, npc_id);
+        try
+        {
+            std::stoi(npc_id);
+        }
+        catch (const std::exception&)
+        {
+            npc_id = "*";
+        }
+    } while (!DataValidator::fValidate(npc_id, DataValidator::SQL_INJECTION));
+    
+    request["npc_id"] = npc_id;
+    
+    return request;
+}
+
+/*
+ Method for editting one NPC of mine
+ */
+json UserActions::fEditNpc(const std::string &session, const int id, json &json_npc)
+{
+    cout << "********** NPC **********" << endl;
+    Npc npc(json_npc);
+    npc.fShowNpc();
+    
+    string hitpoints = json_npc["hitpoints"];
+    string strength = json_npc["strength"];
+    string dexterity = json_npc["dexterity"];
+    string constitution = json_npc["constitution"];
+    string intelligence = json_npc["intelligence"];
+    string wisdom = json_npc["wisdom"];
+    string charisma = json_npc["charisma"];
+    int sum = stoi(hitpoints) + stoi(strength) + stoi(dexterity) + stoi(constitution) + stoi(intelligence) + stoi(wisdom) + stoi(charisma);
+    const int MAX_SUM = 80;
+    
+    enum npc_fields
+    {
+        NAME = 1,
+        TYPE = 2,
+        LEVEL = 3,
+        HITPOINTS = 4,
+        STRENGTH = 5,
+        DEXTERITY = 6,
+        CONSTITUTION = 7,
+        INTELLIGENCE = 8,
+        WISDOM = 9,
+        CHARISMA = 10
+    };
+    
+    bool exit = false;
+    do{
+        system("cls");
+        string choice;
+        cout << "Choose some data you want to edit (to exit press \"0\":" << std::endl;
+        getline(cin, choice);
+        
+        switch (stoi(choice))
+        {
+            case NAME:
+            {
+                cout << "The old data for name: " << npc.fGetName() << endl;
+                string name;
+                do
+                {
+                    cout << "Input a name: ";
+                    getline(cin, name);
+                    
+                    if (!DataValidator::fValidate(name, DataValidator::SQL_INJECTION)) // name validation
+                        cout << "This datum should consist of letters!\n";
+                    else
+                        npc.fSetName(name);
+                } while (!DataValidator::fValidate(name, DataValidator::SQL_INJECTION));
+            }
+                break;
+            case TYPE:
+            {
+                cout << "The old data for type: " << npc.fGetType() << endl;
+                string type_npc;
+                do
+                {
+                    cout << "Input the NPC's type: ";
+                    getline(cin, type_npc);
+                    
+                    if (!DataValidator::fValidate(type_npc, DataValidator::SQL_INJECTION)) // type_NPC validation
+                        cout << "This datum should consist of letters!" << endl;
+                    else
+                        npc.fSetType(type_npc);
+                } while (!DataValidator::fValidate(type_npc, DataValidator::SQL_INJECTION));
+            }
+                break;
+            case LEVEL:
+            {
+                cout << "The old data for level: " << npc.fGetLevel() << endl;
+                string level;
+                do
+                {
+                    cout << "Input the level: ";
+                    getline(cin, level);
+                    
+                    if (stoi(level) > 0) // level validation
+                        npc.fSetLevel(level);
+                } while (stoi(level) <= 0);
+            }
+                break;
+            case HITPOINTS:
+            {
+                cout << "The old data for hitpoints: " << npc.fGetHitpoints() << endl;
+                sum -= stoi(hitpoints);
+                cout << fShowMaxValue(sum) << endl;
+                
+                do
+                {
+                    cout << "Input the ammount of hitpoints: ";
+                    getline(cin, hitpoints);
+                    
+                    if (!DataValidator::fValidate(hitpoints, DataValidator::ABILITY))
+                        cout << "This datum should be more than 0 and less than (or equal to) 20!" << endl;
+                    else if ((sum + stoi(hitpoints)) > MAX_SUM)
+                        cout << "The sum of all vability-values should be less than (or equal to) 80!" << endl;
+                    else
+                    {
+                        npc.fSetHitpoints(hitpoints);
+                        sum += stoi(hitpoints);
+                    }
+                } while (!DataValidator::fValidate(hitpoints, DataValidator::ABILITY) && sum <= MAX_SUM);
+            }
+                break;
+            case STRENGTH:
+            {
+                cout << "The old data for strength: " << npc.fGetStrength() << endl;
+                sum -= stoi(strength);
+                cout << fShowMaxValue(sum) << endl;
+                
+                do
+                {
+                    cout << "Input the strength-value: ";
+                    getline(cin, strength);
+                    
+                    if (!DataValidator::fValidate(strength, DataValidator::ABILITY))
+                        cout << "This datum should be more than 0 and less than (or equal to) 20!" << endl;
+                    else if ((sum + stoi(strength)) > MAX_SUM)
+                        cout << "The sum of all vability-values should be less than (or equal to) 80!" << endl;
+                    else
+                    {
+                        npc.fSetStrength(strength);
+                        sum += stoi(strength);
+                    }
+                } while (!DataValidator::fValidate(strength, DataValidator::ABILITY) && sum <= MAX_SUM);
+            }
+                break;
+            case DEXTERITY:
+            {
+                cout << "The old data for dexterity: " << npc.fGetDexterity() << endl;
+                sum -= stoi(dexterity);
+                cout << fShowMaxValue(sum) << endl;
+                
+                do
+                {
+                    cout << "Input the dexterity-value: ";
+                    getline(cin, dexterity);
+                    
+                    if (!DataValidator::fValidate(dexterity, DataValidator::ABILITY))
+                        cout << "This datum should be more than 0 and less than (or equal to) 20!" << endl;
+                    else if ((sum + stoi(dexterity)) > MAX_SUM)
+                        cout << "The sum of all vability-values should be less than (or equal to) 80!" << endl;
+                    else
+                    {
+                        npc.fSetDexterity(dexterity);
+                        sum += stoi(dexterity);
+                    }
+                } while (!DataValidator::fValidate(dexterity, DataValidator::ABILITY) && sum <= MAX_SUM);
+            }
+                break;
+            case CONSTITUTION:
+            {
+                cout << "The old data for constitution: " << npc.fGetConstitution() << endl;
+                sum -= stoi(constitution);
+                cout << fShowMaxValue(sum) << endl;
+                
+                do
+                {
+                    cout << "Input the constitution-value: ";
+                    getline(cin, constitution);
+                    
+                    if (!DataValidator::fValidate(constitution, DataValidator::ABILITY))
+                        cout << "This datum should be more than 0 and less than (or equal to) 20!" << endl;
+                    else if ((sum + stoi(constitution)) > MAX_SUM)
+                        cout << "The sum of all vability-values should be less than (or equal to) 80!" << endl;
+                    else
+                    {
+                        npc.fSetConstitution(constitution);
+                        sum += stoi(constitution);
+                    }
+                } while (!DataValidator::fValidate(constitution, DataValidator::ABILITY) && sum <= MAX_SUM);
+            }
+                break;
+            case INTELLIGENCE:
+            {
+                cout << "The old data for intelligence: " << npc.fGetIntelligence() << endl;
+                sum -= stoi(intelligence);
+                cout << fShowMaxValue(sum) << endl;
+                
+                do
+                {
+                    cout << "Input the intelligence-value: ";
+                    getline(cin, intelligence);
+                    
+                    if (!DataValidator::fValidate(intelligence, DataValidator::ABILITY))
+                        cout << "This datum should be more than 0 and less than (or equal to) 20!" << endl;
+                    else if ((sum + stoi(intelligence)) > MAX_SUM)
+                        cout << "The sum of all vability-values should be less than (or equal to) 80!" << endl;
+                    else
+                    {
+                        npc.fSetIntelligence(intelligence);
+                        sum += stoi(intelligence);
+                    }
+                } while (!DataValidator::fValidate(intelligence, DataValidator::ABILITY) && sum <= MAX_SUM);
+            }
+                break;
+            case WISDOM:
+            {
+                cout << "The old data for wisdom: " << npc.fGetWisdom() << endl;
+                sum -= stoi(wisdom);
+                cout << fShowMaxValue(sum) << endl;
+                
+                do
+                {
+                    cout << "Input the wisdom-value: ";
+                    getline(cin, wisdom);
+                    
+                    if (!DataValidator::fValidate(wisdom, DataValidator::ABILITY))
+                        cout << "This datum should be more than 0 and less than (or equal to) 20!" << endl;
+                    else if ((sum + stoi(wisdom)) > MAX_SUM)
+                        cout << "The sum of all vability-values should be less than (or equal to) 80!" << endl;
+                    else
+                    {
+                        npc.fSetWisdom(wisdom);
+                        sum += stoi(wisdom);
+                    }
+                } while (!DataValidator::fValidate(wisdom, DataValidator::ABILITY) && sum <= MAX_SUM);
+            }
+                break;
+            case CHARISMA:
+            {
+                cout << "The old data for charisma: " << npc.fGetCharisma() << endl;
+                sum -= stoi(charisma);
+                cout << fShowMaxValue(sum) << endl;
+                
+                do
+                {
+                    cout << "This ability is the last." << endl;
+                    cout << "Input the charisma-value: ";
+                    getline(cin, charisma);
+                    
+                    if (!DataValidator::fValidate(charisma, DataValidator::ABILITY))
+                        cout << "This datum should be more than 0 and less than (or equal to) 20!" << endl;
+                    else if ((sum + stoi(charisma)) > MAX_SUM)
+                        cout << "The sum of all vability-values should be less than (or equal to) 80!" << endl;
+                    else
+                    {
+                        npc.fSetCharisma(charisma);
+                        sum += stoi(charisma);
+                    }
+                } while (!DataValidator::fValidate(charisma, DataValidator::ABILITY) && sum <= MAX_SUM);
+            }
+                break;
+            case 0:
+                system("cls");
+                exit = true;
+                break;
+            default:
+                cout << "\nUnexpected operation..." << endl;
+        }
+    } while (!exit);
+    
+    json request;
+    //request["session_id"] = session;
+    request["npc_id"] = id;
+    request += npc.fToJson();
+    
+    return request;
+}
+
+/*
+ Method for deleting one NPC of mine
+ */
+json UserActions::fDeleteNpc(const std::string &session)
+{
+    json request;
+    request["session_id"] = session;
+    
+    std::string npc_id;
+    do
+    {
+        std::cout << "Input the NPC's id:\n";
+        std::getline(std::cin, npc_id);
+        try
+        {
+            std::stoi(npc_id);
+        }
+        catch (const std::exception&)
+        {
+            npc_id = "*";
+        }
+    } while (!DataValidator::fValidate(npc_id, DataValidator::SQL_INJECTION));
+    
+    request["npc_id"] = npc_id;
+    
+    return request;
+}
+
 json UserActions::fCreateTerrain(const std::string &session)
 {
 	std::string terrain_name;

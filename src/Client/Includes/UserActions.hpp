@@ -23,6 +23,10 @@ public:
 	static json fLogin();
 	static json fRegistration();
 	static json fCreateNpc(const std::string &session); // method for NPC creation
+    static json fLoadMyNpcs(const std::string &session); // loads full list of my NPCs
+    static json fLoadNpc(const std::string &session); // loads one NPC by its id
+    static json fEditNpc(const std::string &session, const int id, json &json_npc); // edits one NPC according to its id
+    static json fDeleteNpc(const std::string &session); // delete NPC by id
 	static json fCreateTerrain(const std::string &session); //method for Terrain creation
 	static json fShowFullListOfTerrains(const std::string &session);
 	static json fLoadMyTerrains(const std::string &session);  //load user terrains
