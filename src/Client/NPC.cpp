@@ -39,7 +39,7 @@ Npc::Npc(string &owner,
 
 Npc::Npc(json &jsonData)
 {
-    _owner = jsonData["session"];
+    _owner = jsonData["id_owner"];
     _name = jsonData["npc"];
     _type = jsonData["type"];
     _level = jsonData["level"];
