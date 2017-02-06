@@ -142,10 +142,8 @@ void fParseRequest(std::string &path, std::map <std::string, std::string> &http_
 						fDeleteNpc(response, json_request);
 					else if (path.find("/api/addcharacter") != string::npos)
 						fSaveCharacter(response, json_request);
-					else if (path.find("/api/loadmycharacterslist")!=string::npos)
-					{
+					else if (path.find("/api/loadmycharacterslist") != string::npos)
 						fSendOwnCharacterList(response, json_request);
-					}
                     else
                     	response = "{\"status\": \"fail\",\"message\": \"requested API is not implemented\"}";
                 }
@@ -769,9 +767,10 @@ void fSendOwnCharacterList(std::string &json_response, nlohmann::json &json_requ
 {
 	string session_id = json_request["session_id"];
 	string id_user;
+    
 	if (fRetrieveUserId(id_user, session_id))
 	{
-		string query = "SELECT id, name, race, class, experience, hitpoints,level, id_user,strength, dexterity, constitution, intelligence, wisdom, charisma, id_character FROM CHARACTERs, ABILITIEs WHERE id_user=" + id_user + ";";
+		string query = "SELECT c.id, c.name, c.race, c.class, c.experience, c.hitpoints, c.level, c.id_user, a.strength, a.dexterity, a.constitution, a.intelligence, a.wisdom, a.charisma, a.id_character FROM Characters c, Abilities a WHERE id_user = " + id_user + " AND c.id = a.id_character;";
 		nlohmann::json json_result = data_base.fExecuteQuery(query);
 		cout << query << "\nRESULT:\n" << json_result << endl;
 		string query_result = json_result["result"];
@@ -791,7 +790,7 @@ void fSendOwnCharacterList(std::string &json_response, nlohmann::json &json_requ
 					string class_ = json_result["data"][rows_qtt]["class"];
 					string experience = json_result["data"][rows_qtt]["experience"];
 					string hitpoints = json_result["data"][rows_qtt]["hitpoints"];
-					string level = json_result["data"][rows_qtt]["leve;"];
+					string level = json_result["data"][rows_qtt]["level"];
 					string id_owner = json_result["data"][rows_qtt]["id_user"];
 					json_response += "{\"character\": \"" + character + "\", \"character_id\": \"" + character_id + "\", \"race\": \"" + race + "\", \"class\": \"" + class_ + "\", \"experience\": \"" + experience + "\", \"hitpoints\": \"" + hitpoints + "\", \"level\": \"" + level + "\", \"id_owner\": \"" + id_owner + "\"}";
 					if (rows_qtt)
