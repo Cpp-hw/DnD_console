@@ -157,9 +157,9 @@ void GameClient::fDisplayNPCMenu(std::string &host, std::string &port, const std
 		std::cout << "********** NPC Menu **********" << std::endl;
 		std::cout << "1. Create NPC" << std::endl;
 		std::cout << "2. Show my NPCs" << std::endl;
-		std::cout << "3. Load NPC by it's id" << std::endl;
-		std::cout << "4. Edit NPC by it's id" << std::endl;
-		std::cout << "5. Delete NPC by it's id" << std::endl;
+		std::cout << "3. Load NPC by its id" << std::endl;
+		std::cout << "4. Edit NPC by its id" << std::endl;
+		std::cout << "5. Delete NPC by its id" << std::endl;
 		std::cout << "0. Back to previous  menu" << std::endl;
 		std::cout << "Enter choice: ";  // user enter option 
 
