@@ -639,7 +639,7 @@ json UserActions::fLoadCharacterByName(const std::string &session)
 	request["session_id"] = session;
 	do
 	{
-		std::cout << "Enter terrain name:" << std::endl;
+		std::cout << "Input character's name:" << std::endl;
 		std::getline(std::cin, character_name);
 		
 	} while (!DataValidator::fValidate(character_name, DataValidator::SQL_INJECTION));
@@ -648,6 +648,7 @@ json UserActions::fLoadCharacterByName(const std::string &session)
 
 	return request;
 }
+
 json UserActions::fLoadMyCharacters(const std::string &session)
 {
 	json request;

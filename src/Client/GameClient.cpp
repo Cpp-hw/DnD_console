@@ -74,7 +74,7 @@ void GameClient::fDisplayPlayerMenu(std::string &host, std::string &port,const s
 	{
 		std::cout << "********** Player Mode **********" << std::endl;
 		std::cout << "1. Create character" << std::endl;
-		//std::cout << "2. Load character by name" << std::endl;
+		std::cout << "2. Load character by name" << std::endl;
 		std::cout << "3. Full list of my characters" << std::endl;
 		std::cout << "0.  Back to previous  menu" << std::endl;
 		std::cout << "Enter choice:" << std::endl;

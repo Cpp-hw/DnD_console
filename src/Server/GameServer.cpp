@@ -32,6 +32,8 @@ void fSendDefinedTerrains(std::string &json_response, nlohmann::json &json_reque
 void fSendOwnTerrainsList(std::string &json_response, nlohmann::json &json_request);
 void fSendOwnCharacterList(std::string &json_response, nlohmann::json &json_request);
 void fUserRegistration(std::string &json_response, nlohmann::json &json_request);
+void fSendDefinedCharacter(std::string &json_response, nlohmann::json &json_request);
+
 string fSetAbilityMod(std::string ability);
 HttpServer* pHttp_server;
 DataBase data_base;
@@ -144,6 +146,8 @@ void fParseRequest(std::string &path, std::map <std::string, std::string> &http_
 						fSaveCharacter(response, json_request);
 					else if (path.find("/api/loadmycharacterslist") != string::npos)
 						fSendOwnCharacterList(response, json_request);
+                    else if (path.find("/api/loaddefinedcharacter") != string::npos)
+                        fSendDefinedCharacter(response, json_request)
                     else
                     	response = "{\"status\": \"fail\",\"message\": \"requested API is not implemented\"}";
                 }
@@ -763,6 +767,7 @@ string fSetAbilityMod(std::string ability)
 		return "-3";
 	}
 }
+
 void fSendOwnCharacterList(std::string &json_response, nlohmann::json &json_request)
 {
 	string session_id = json_request["session_id"];
@@ -806,4 +811,50 @@ void fSendOwnCharacterList(std::string &json_response, nlohmann::json &json_requ
 	}
 	else
 		json_response = "{\"status\":\"fail\", \"message\": \"you are not logged in\"}";
+}
+
+void fSendDefinedCharacter(std::string &json_response, nlohmann::json &json_request)
+{
+    string session_id = json_request["session_id"];
+    string id_user;
+    
+    if (fRetrieveUserId(id_user, session_id))
+    {
+        string name = json_request["character"];
+        string query = "SELECT c.id, c.name, c.race, c.class, c.experience, c.hitpoints, c.level, c.id_user, a.strength, a.dexterity, a.constitution, a.intelligence, a.wisdom, a.charisma, a.id_character FROM Characters c, Abilities a WHERE c.name = '" + name + "' AND c.id = a.id_character;";
+        nlohmann::json json_result = data_base.fExecuteQuery(query);
+        cout << query << "\nRESULT:\n" << json_result << endl;
+        string query_result = json_result["result"];
+        
+        if (query_result == "success")
+        {
+            string rows = json_result["rows"];
+            int rows_qtt = stoi(rows);
+            if (rows_qtt > 0)
+            {
+                json_response = "{\"status\":\"success\", \"characters_quantity\":\"" + rows + "\", \"list\": [";
+                while (rows_qtt--)
+                {
+                    string character_id = json_result["data"][rows_qtt]["id"];
+                    string character = json_result["data"][rows_qtt]["name"];
+                    string race = json_result["data"][rows_qtt]["race"];
+                    string class_ = json_result["data"][rows_qtt]["class"];
+                    string experience = json_result["data"][rows_qtt]["experience"];
+                    string hitpoints = json_result["data"][rows_qtt]["hitpoints"];
+                    string level = json_result["data"][rows_qtt]["level"];
+                    string id_owner = json_result["data"][rows_qtt]["id_user"];
+                    json_response += "{\"character\": \"" + character + "\", \"character_id\": \"" + character_id + "\", \"race\": \"" + race + "\", \"class\": \"" + class_ + "\", \"experience\": \"" + experience + "\", \"hitpoints\": \"" + hitpoints + "\", \"level\": \"" + level + "\", \"id_owner\": \"" + id_owner + "\"}";
+                    if (rows_qtt)
+                        json_response += ",";
+                }
+                json_response += "]}";
+            }
+            else
+                json_response = "{\"status\":\"warning\", \"message\": \"list of your characters is empty\"}";
+        }
+        else
+            json_response = "{\"status\":\"fail\", \"message\": \"list of characters is not loaded, sql query execution failed\"}";
+    }
+    else
+        json_response = "{\"status\":\"fail\", \"message\": \"you are not logged in\"}";
 }
