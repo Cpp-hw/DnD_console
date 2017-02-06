@@ -648,11 +648,53 @@ json UserActions::fLoadCharacterByName(const std::string &session)
 
 	return request;
 }
+
 json UserActions::fLoadMyCharacters(const std::string &session)
 {
 	json request;
 	request["session_id"] = session;
 	return request;
+}
+
+/*
+ Method for loading the list of boards of mine
+ */
+json UserActions::fLoadMyBoards(const std::string &session)
+{
+    json request;
+    request["session_id"] = session;
+    return request;
+}
+
+/*
+ Method for loading one my board by its id
+ */
+json UserActions::fLoadBoard(const std::string &session)
+{
+    json request;
+    request["session_id"] = session;
+    
+    cin.clear();
+    cin.ignore();
+    
+    std::string board_id;
+    do
+    {
+        std::cout << "Input the board's id:\n";
+        std::getline(std::cin, board_id);
+        try
+        {
+            std::stoi(board_id);
+        }
+        catch (const std::exception&)
+        {
+            board_id = "*";
+        }
+    } while (!DataValidator::fValidate(board_id, DataValidator::SQL_INJECTION));
+    
+    request["board_id"] = board_id;
+    
+    return request;
 }
 
 std::string UserActions::fLogout(std::string &session)

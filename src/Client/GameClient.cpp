@@ -294,6 +294,53 @@ void GameClient::fDisplayTerrainMenu(std::string &host, std::string &port, const
 	} while (choice != 0);
 }
 
+void GameClient::fDisplayBoardMenu(std::string &host, std::string &port, const std::string &user_session)
+{
+    int choice = -1;
+    
+    do
+    {
+        std::cout << "********** Board Menu **********" << std::endl;
+        //std::cout << "1. Create board" << std::endl;
+        std::cout << "2. Show my boards" << std::endl;
+        std::cout << "3. Load board by its id" << std::endl;
+        std::cout << "0. Back to previous  menu" << std::endl;
+        std::cout << "Enter choice: ";  // user enter option
+        
+        choice = fGetInput() - 48;
+        
+        switch (choice)
+        {
+            case 1:
+            {
+            }
+                break;
+            case 2:
+            {
+                auto request = UserActions::fLoadMyBoards(_game_session).dump();
+                std::string response;
+                SendRequest(HttpClient::_POST, host, port, "/api/loadmyboardslist", response, request);
+                std::cout << "Response: " << response << std::endl;
+                
+            }
+                break;
+            case 3:
+            {
+                auto request = UserActions::fLoadBoard(_game_session).dump();
+                std::string response;
+                SendRequest(HttpClient::_POST, host, port, "/api/loadboard", response, request);
+                std::cout << "Respone: " << response << std::endl;
+            }
+                break;
+            case 0:
+                break;
+            default:
+                std::cout << "Wrong menu option !!!" << std::endl;
+                break;
+        }
+    } while (choice != 0);
+}
+
 void GameClient::fMenu(std::string &host, std::string &port)
 {
 	int choice = -1;
