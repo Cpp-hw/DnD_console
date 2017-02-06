@@ -151,6 +151,9 @@ json UserActions::fLoadMyNpcs(const std::string &session)
  */
 json UserActions::fLoadNpc(const std::string &session)
 {
+    cin.clear();
+    cin.ignore();
+    
     json request;
     request["session_id"] = session;
     
@@ -179,6 +182,8 @@ json UserActions::fLoadNpc(const std::string &session)
  */
 json UserActions::fEditNpc(json &json_npc)
 {
+    cin.clear();
+    cin.ignore();
     cout << "********** NPC **********" << endl;
     Npc npc(json_npc);
     npc.fShowNpc();
