@@ -81,6 +81,7 @@ CREATE TABLE Sessions (
 
 CREATE TABLE Boards (
     id INT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL,
     width TINYINT UNSIGNED NOT NULL,
     height TINYINT UNSIGNED NOT NULL,
     description TEXT NOT NULL,
@@ -92,8 +93,8 @@ CREATE TABLE Boards (
 CREATE TABLE BT_Map (
     id_board INT NOT NULL,
     id_terrain INT NOT NULL,
-    position_width TINYINT UNSIGNED NOT NULL,
-    position_height TINYINT UNSIGNED NOT NULL,
+    terrain_x TINYINT UNSIGNED NOT NULL,
+    terrain_y TINYINT UNSIGNED NOT NULL,
     FOREIGN KEY (id_board) REFERENCES Boards (id),
     FOREIGN KEY (id_terrain) REFERENCES Terrain (id)
     );
@@ -101,8 +102,8 @@ CREATE TABLE BT_Map (
 CREATE TABLE BN_Map (
     id_board INT NOT NULL,
     id_npc INT NOT NULL,
-    position_width TINYINT UNSIGNED NOT NULL,
-    position_height TINYINT UNSIGNED NOT NULL,
+    npc_x TINYINT UNSIGNED NOT NULL,
+    npc_y TINYINT UNSIGNED NOT NULL,
     FOREIGN KEY (id_board) REFERENCES Boards (id),
     FOREIGN KEY (id_npc) REFERENCES NPCs (id)
     );
