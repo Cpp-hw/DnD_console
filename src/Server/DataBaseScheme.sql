@@ -92,6 +92,8 @@ CREATE TABLE Boards (
 CREATE TABLE BT_Map (
     id_board INT NOT NULL,
     id_terrain INT NOT NULL,
+    position_width TINYINT UNSIGNED NOT NULL,
+    position_height TINYINT UNSIGNED NOT NULL,
     FOREIGN KEY (id_board) REFERENCES Boards (id),
     FOREIGN KEY (id_terrain) REFERENCES Terrain (id)
     );
@@ -99,6 +101,8 @@ CREATE TABLE BT_Map (
 CREATE TABLE BN_Map (
     id_board INT NOT NULL,
     id_npc INT NOT NULL,
+    position_width TINYINT UNSIGNED NOT NULL,
+    position_height TINYINT UNSIGNED NOT NULL,
     FOREIGN KEY (id_board) REFERENCES Boards (id),
     FOREIGN KEY (id_npc) REFERENCES NPCs (id)
     );
