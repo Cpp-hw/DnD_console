@@ -1040,10 +1040,11 @@ void fSendBoard(std::string &json_response, nlohmann::json &json_request)
 {
     string session_id = json_request["session_id"];
     string id_user;
+    
     if (fRetrieveUserId(id_user, session_id))
     {
         string board_id = json_request["board_id"];
-        string query = "SELECT name, width, height, description, id_owner FROM Boards WHERE id = " + board_id + ";";
+        string query = "SELECT b.name, b.width, b.height, b.description, b.id_owner, n.id_npc, n.npc_x, n.npc_y, t.id_terrain, t.terrain_x, t.terrain_y FROM Boards b, BN_Map n, BT_Map t WHERE b.id = '" + board_id + "' AND b.id_owner = '" + id_user + "' AND n.id_board = b.id AND t.id_board = b.id;";
         nlohmann::json json_result = data_base.fExecuteQuery(query);
         cout << query << "\nRESULT:\n" << json_result << endl;
         string query_result = json_result["result"];
@@ -1051,17 +1052,143 @@ void fSendBoard(std::string &json_response, nlohmann::json &json_request)
         if (query_result == "success")
         {
             string rows = json_result["rows"];
-            if (stoi(rows) > 0)
+            int rows_qtt = stoi(rows);
+            if (rows_qtt > 0)
             {
                 string board = json_result["data"][0]["name"];
                 string width = json_result["data"][0]["width"];
                 string height = json_result["data"][0]["height"];
                 string description = json_result["data"][0]["description"];
                 string id_owner = json_result["data"][0]["id_owner"];
-                json_response = "{\"status\":\"success\", \"board\": \"" + board + "\", \"board_id\": \"" + board + "\", \"width\": \"" + width + "\", \"height\": \"" + height + "\", \"description\": \"" + description + "\", \"id_owner\": \"" + id_owner + "\"}";
+                json_response = "{\"status\":\"success\", \"board\": \"" + board + "\", \"board_id\": \"" + board + "\", \"width\": \"" + width + "\", \"height\": \"" + height + "\", \"description\": \"" + description + "\", \"id_owner\": \"" + id_owner + "\", \"data_count\":\"" + rows + "\", \"data\": [";
+                
+                while (rows_qtt--)
+                {
+                    if (json_result["id_npc"])
+                    {
+                        string type = "npc";
+                        string id_npc = json_result["data"][rows_qtt]["id_npc"];
+                        string npc_x = json_request["data"][rows_qtt]["npc_x"];
+                        string npc_y = json_request["data"][rows_qtt]["npc_y"];
+                        
+                        json_response += "{\"type\": \"" + type + "\", \"id\": \"" + id_npc + "\", \"pos_x\": \"" + npc_x + "\", \"pos_y\": \"" + npc_y + "\"}";
+                    }
+                    else if (json_result["id_terrain"])
+                    {
+                        string type = "terrain";
+                        string id_terrain = json_result["data"][rows_qtt]["id_terrain"];
+                        string terrain_x = json_request["data"][rows_qtt]["terrain_x"];
+                        string terrain_y = json_request["data"][rows_qtt]["terrain_y"];
+                        
+                        json_response += "{\"type\": \"" + type + "\", \"id\": \"" + id_terrain + "\", \"pos_x\": \"" + terrain_x + "\", \"pos_y\": \"" + terrain_y + "\"}";
+                    }
+                    if (rows_qtt)
+                        json_response += ",";
+                }
+                json_response += "]}";
             }
             else
-                json_response = "{\"status\":\"fail\", \"message\": \"no board that you own with the specified id\"}";
+            {
+                query = "SELECT b.name, b.width, b.height, b.description, b.id_owner, n.id_npc, n.npc_x, n.npc_y FROM Boards b, BN_Map n, BT_Map t WHERE b.id = '" + board_id + "' AND b.id_owner = '" + id_user + "' AND n.id_board = b.id;";
+                json_result = data_base.fExecuteQuery(query);
+                cout << query << "\nRESULT:\n" << json_result << endl;
+                query_result = json_result["result"];
+                
+                if (query_result == "success")
+                {
+                    rows = json_result["rows"];
+                    rows_qtt = stoi(rows);
+                    if (rows_qtt > 0)
+                    {
+                        string board = json_result["data"][0]["name"];
+                        string width = json_result["data"][0]["width"];
+                        string height = json_result["data"][0]["height"];
+                        string description = json_result["data"][0]["description"];
+                        string id_owner = json_result["data"][0]["id_owner"];
+                        json_response = "{\"status\":\"success\", \"board\": \"" + board + "\", \"board_id\": \"" + board_id + "\", \"width\": \"" + width + "\", \"height\": \"" + height + "\", \"description\": \"" + description + "\", \"id_owner\": \"" + id_owner + "\", \"data_count\":\"" + rows + "\", \"data\": [";
+                        
+                        cout << "json_response: " << json_response << endl;
+                        while (rows_qtt--)
+                        {
+                            string type = "npc";
+                            string id_npc = json_result["data"][rows_qtt]["id_npc"];
+                            string npc_x = json_result["data"][rows_qtt]["npc_x"];
+                            string npc_y = json_result["data"][rows_qtt]["npc_y"];
+                            
+                            json_response += "{\"type\": \"" + type + "\", \"id\": \"" + id_npc + "\", \"pos_x\": \"" + npc_x + "\", \"pos_y\": \"" + npc_y + "\"}";
+                            
+                            if (rows_qtt)
+                                json_response += ",";
+                        }
+                        json_response += "]}";
+                    }
+                    else
+                    {
+                        query = "SELECT b.name, b.width, b.height, b.description, b.id_owner, t.id_terrain, t.terrain_x, t.terrain_y FROM Boards b, BT_Map t WHERE b.id = '" + board_id + "' AND b.id_owner = '" + id_user + "' AND t.id_board = b.id;";
+                        json_result = data_base.fExecuteQuery(query);
+                        cout << query << "\nRESULT:\n" << json_result << endl;
+                        query_result = json_result["result"];
+                        
+                        if (query_result == "success")
+                        {
+                            rows = json_result["rows"];
+                            rows_qtt = stoi(rows);
+                            if (rows_qtt > 0)
+                            {
+                                string board = json_result["data"][0]["name"];
+                                string width = json_result["data"][0]["width"];
+                                string height = json_result["data"][0]["height"];
+                                string description = json_result["data"][0]["description"];
+                                string id_owner = json_result["data"][0]["id_owner"];
+                                json_response = "{\"status\":\"success\", \"board\": \"" + board + "\", \"board_id\": \"" + board_id + "\", \"width\": \"" + width + "\", \"height\": \"" + height + "\", \"description\": \"" + description + "\", \"id_owner\": \"" + id_owner + "\", \"data_count\":\"" + rows + "\", \"data\": [";
+                                
+                                while (rows_qtt--)
+                                {
+                                    string type = "terrain";
+                                    string id_terrain = json_result["data"][rows_qtt]["id_terrain"];
+                                    string terrain_x = json_result["data"][rows_qtt]["terrain_x"];
+                                    string terrain_y = json_result["data"][rows_qtt]["terrain_y"];
+                                    
+                                    json_response += "{\"type\": \"" + type + "\", \"id\": \"" + id_terrain + "\", \"pos_x\": \"" + terrain_x + "\", \"pos_y\": \"" + terrain_y + "\"}";
+                                    
+                                    if (rows_qtt)
+                                        json_response += ",";
+                                }
+                                json_response += "]}";
+                            }
+                            else
+                            {
+                                query = "SELECT name, width, height, description, id_owner FROM Boards WHERE id = " + board_id + ";";
+                                json_result = data_base.fExecuteQuery(query);
+                                cout << query << "\nRESULT:\n" << json_result << endl;
+                                query_result = json_result["result"];
+                                
+                                if (query_result == "success")
+                                {
+                                    rows = json_result["rows"];
+                                    if (stoi(rows) > 0)
+                                    {
+                                        string board = json_result["data"][0]["name"];
+                                        string width = json_result["data"][0]["width"];
+                                        string height = json_result["data"][0]["height"];
+                                        string description = json_result["data"][0]["description"];
+                                        string id_owner = json_result["data"][0]["id_owner"];
+                                        json_response = "{\"status\":\"success\", \"board\": \"" + board + "\", \"board_id\": \"" + board + "\", \"width\": \"" + width + "\", \"height\": \"" + height + "\", \"description\": \"" + description + "\", \"id_owner\": \"" + id_owner + "\"}";
+                                    }
+                                    else
+                                        json_response = "{\"status\":\"fail\", \"message\": \"no board that you own with the specified id\"}";
+                                }
+                                else
+                                    json_response = "{\"status\":\"fail\", \"message\": \"board is not loaded, sql query execution failed\"}";
+                            }
+                        }
+                        else
+                            json_response = "{\"status\":\"fail\", \"message\": \"board is not loaded, sql query execution failed\"}";
+                    }
+                }
+                else
+                    json_response = "{\"status\":\"fail\", \"message\": \"board is not loaded, sql query execution failed\"}";
+            }
         }
         else
             json_response = "{\"status\":\"fail\", \"message\": \"board is not loaded, sql query execution failed\"}";
