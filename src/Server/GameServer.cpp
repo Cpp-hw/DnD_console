@@ -1053,37 +1053,66 @@ void fSendBoard(std::string &json_response, nlohmann::json &json_request)
             int rows_qtt = stoi(rows);
             if (rows_qtt > 0)
             {
-                string board = json_result["data"][0]["name"];
-                string width = json_result["data"][0]["width"];
-                string height = json_result["data"][0]["height"];
-                string description = json_result["data"][0]["description"];
-                string id_owner = json_result["data"][0]["id_owner"];
-                json_response = "{\"status\":\"success\", \"board\": \"" + board + "\", \"board_id\": \"" + board + "\", \"width\": \"" + width + "\", \"height\": \"" + height + "\", \"description\": \"" + description + "\", \"id_owner\": \"" + id_owner + "\", \"data_count\":\"" + rows + "\", \"data\": [";
+                query = "SELECT b.name, b.width, b.height, b.description, b.id_owner, n.id_npc, n.npc_x, n.npc_y FROM Boards b, BN_Map n WHERE b.id = '" + board_id + "' AND b.id_owner = '" + id_user + "' AND n.id_board = b.id;";
+                json_result = data_base.fExecuteQuery(query);
+                cout << query << "\nRESULT:\n" << json_result << endl;
+                query_result = json_result["result"];
                 
-                while (rows_qtt--)
+                if (query_result == "success")
                 {
-                    if (json_result["id_npc"])
+                    rows = json_result["rows"];
+                    rows_qtt = stoi(rows);
+                    if (rows_qtt > 0)
                     {
-                        string type = "npc";
-                        string id_npc = json_result["data"][rows_qtt]["id_npc"];
-                        string npc_x = json_request["data"][rows_qtt]["npc_x"];
-                        string npc_y = json_request["data"][rows_qtt]["npc_y"];
+                        string board = json_result["data"][0]["name"];
+                        string width = json_result["data"][0]["width"];
+                        string height = json_result["data"][0]["height"];
+                        string description = json_result["data"][0]["description"];
+                        string id_owner = json_result["data"][0]["id_owner"];
+                        json_response = "{\"status\":\"success\", \"board\": \"" + board + "\", \"board_id\": \"" + board_id + "\", \"width\": \"" + width + "\", \"height\": \"" + height + "\", \"description\": \"" + description + "\", \"id_owner\": \"" + id_owner + "\", \"data_count\":\"" + rows + "\", \"data\": [";
                         
-                        json_response += "{\"type\": \"" + type + "\", \"id\": \"" + id_npc + "\", \"pos_x\": \"" + npc_x + "\", \"pos_y\": \"" + npc_y + "\"}";
-                    }
-                    else if (json_result["id_terrain"])
-                    {
-                        string type = "terrain";
-                        string id_terrain = json_result["data"][rows_qtt]["id_terrain"];
-                        string terrain_x = json_request["data"][rows_qtt]["terrain_x"];
-                        string terrain_y = json_request["data"][rows_qtt]["terrain_y"];
-                        
-                        json_response += "{\"type\": \"" + type + "\", \"id\": \"" + id_terrain + "\", \"pos_x\": \"" + terrain_x + "\", \"pos_y\": \"" + terrain_y + "\"}";
-                    }
-                    if (rows_qtt)
+                        while (rows_qtt--)
+                        {
+                            string type = "npc";
+                            string id_npc = json_result["data"][rows_qtt]["id_npc"];
+                            string npc_x = json_result["data"][rows_qtt]["npc_x"];
+                            string npc_y = json_result["data"][rows_qtt]["npc_y"];
+                            
+                            json_response += "{\"type\": \"" + type + "\", \"id\": \"" + id_npc + "\", \"pos_x\": \"" + npc_x + "\", \"pos_y\": \"" + npc_y + "\"}";
+                            
+                            if (rows_qtt)
+                                json_response += ",";
+                        }
                         json_response += ",";
+                    }
                 }
-                json_response += "]}";
+                
+                query = "SELECT b.name, b.width, b.height, b.description, b.id_owner, t.id_terrain, t.terrain_x, t.terrain_y FROM Boards b, BT_Map t WHERE b.id = '" + board_id + "' AND b.id_owner = '" + id_user + "' AND t.id_board = b.id;";
+                json_result = data_base.fExecuteQuery(query);
+                cout << query << "\nRESULT:\n" << json_result << endl;
+                query_result = json_result["result"];
+                
+                if (query_result == "success")
+                {
+                    rows = json_result["rows"];
+                    rows_qtt = stoi(rows);
+                    if (rows_qtt > 0)
+                    {
+                        while (rows_qtt--)
+                        {
+                            string type = "terrain";
+                            string id_terrain = json_result["data"][rows_qtt]["id_terrain"];
+                            string terrain_x = json_result["data"][rows_qtt]["terrain_x"];
+                            string terrain_y = json_result["data"][rows_qtt]["terrain_y"];
+                            
+                            json_response += "{\"type\": \"" + type + "\", \"id\": \"" + id_terrain + "\", \"pos_x\": \"" + terrain_x + "\", \"pos_y\": \"" + terrain_y + "\"}";
+                            
+                            if (rows_qtt)
+                                json_response += ",";
+                        }
+                        json_response += "]}";
+                    }
+                }
             }
             else
             {
