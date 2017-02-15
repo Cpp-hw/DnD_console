@@ -949,9 +949,8 @@ void fSaveObjectsOnBoard(std::string &json_response, nlohmann::json &json_reques
         {
             while (data_qtt--)
             {
-                if (json_request["data"][0]["type"] == "npc")
+                if (json_request["data"][data_qtt]["type"] == "npc")
                 {
-                    cout << "npc " << json_request["data"][0]["type"] <<endl;
                     string id_npc = json_request["data"][data_qtt]["id"];
                     string pos_x = json_request["data"][data_qtt]["pos_x"];
                     string pos_y = json_request["data"][data_qtt]["pos_y"];
@@ -989,9 +988,8 @@ void fSaveObjectsOnBoard(std::string &json_response, nlohmann::json &json_reques
                     else
                         json_response = "{\"status\":\"fail\", \"message\": \"invalid data passed\"}";
                 }
-                else if (json_request["data"][0]["data_count"] == "terrain")
+                else if (json_request["data"][data_qtt]["type"] == "terrain")
                 {
-                    cout << "terrain " << json_request["data"][0]["type"] <<endl;
                     string id_terrain = json_request["data"][data_qtt]["id"];
                     string pos_x = json_request["data"][data_qtt]["pos_x"];
                     string pos_y = json_request["data"][data_qtt]["pos_y"];
