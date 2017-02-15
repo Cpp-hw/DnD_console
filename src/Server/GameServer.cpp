@@ -1035,3 +1035,37 @@ void fSaveObjectsOnBoard(std::string &json_response, nlohmann::json &json_reques
     else
         json_response = "{\"status\":\"fail\", \"message\": \"you are not logged in\"}";
 }
+
+void fSendBoard(std::string &json_response, nlohmann::json &json_request)
+{
+    string session_id = json_request["session_id"];
+    string id_user;
+    if (fRetrieveUserId(id_user, session_id))
+    {
+        string board_id = json_request["board_id"];
+        string query = "SELECT name, width, height, description, id_owner FROM Boards WHERE id = " + board_id + ";";
+        nlohmann::json json_result = data_base.fExecuteQuery(query);
+        cout << query << "\nRESULT:\n" << json_result << endl;
+        string query_result = json_result["result"];
+        
+        if (query_result == "success")
+        {
+            string rows = json_result["rows"];
+            if (stoi(rows) > 0)
+            {
+                string board = json_result["data"][0]["name"];
+                string width = json_result["data"][0]["width"];
+                string height = json_result["data"][0]["height"];
+                string description = json_result["data"][0]["description"];
+                string id_owner = json_result["data"][0]["id_owner"];
+                json_response = "{\"status\":\"success\", \"board\": \"" + board + "\", \"board_id\": \"" + board + "\", \"width\": \"" + width + "\", \"height\": \"" + height + "\", \"description\": \"" + description + "\", \"id_owner\": \"" + id_owner + "\"}";
+            }
+            else
+                json_response = "{\"status\":\"fail\", \"message\": \"no board that you own with the specified id\"}";
+        }
+        else
+            json_response = "{\"status\":\"fail\", \"message\": \"board is not loaded, sql query execution failed\"}";
+    }
+    else
+        json_response = "{\"status\":\"fail\", \"message\": \"you are not logged in\"}";
+}
