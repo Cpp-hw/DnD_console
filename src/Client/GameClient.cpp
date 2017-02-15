@@ -301,10 +301,11 @@ void GameClient::fDisplayBoardMenu(std::string &host, std::string &port, const s
     do
     {
         std::cout << "********** Board Menu **********" << std::endl;
-        //std::cout << "1. Create board" << std::endl;
+        std::cout << "1. Create board" << std::endl;
         std::cout << "2. Show my boards" << std::endl;
         std::cout << "3. Load board by its id" << std::endl;
         std::cout << "0. Back to previous  menu" << std::endl;
+        std::cout << "4. Edit my board by its id" << std::endl;
         std::cout << "Enter choice: ";  // user enter option
         
         choice = fGetInput() - 48;
@@ -313,6 +314,18 @@ void GameClient::fDisplayBoardMenu(std::string &host, std::string &port, const s
         {
             case 1:
             {
+                //auto request = ...; - place for request creation
+                std::string response;
+                _http_client->fSendRequest(HttpClient::_POST, "/api/addboard", request);
+                _http_client->fGetResponse(response);
+                std::cout << response << std::endl;
+                
+                //request = ...; - place for request creation
+                response;
+                _http_client->fSendRequest(HttpClient::_POST, "/api/addobjectonboard", request);
+                _http_client->fGetResponse(response);
+                std::cout << response << std::endl;
+
             }
                 break;
             case 2:
@@ -330,6 +343,10 @@ void GameClient::fDisplayBoardMenu(std::string &host, std::string &port, const s
                 std::string response;
                 SendRequest(HttpClient::_POST, host, port, "/api/loadboard", response, request);
                 std::cout << "Respone: " << response << std::endl;
+            }
+                break;
+            case 4:
+            {
             }
                 break;
             case 0:
