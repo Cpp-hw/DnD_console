@@ -39,5 +39,9 @@ public:
     static json fLoadMyBoards(const std::string &session); // loads full list of my boards
     static json fLoadBoard(const std::string &session); // loads one board by its id
 	static std::string fLogout(std::string &session); //drop user session
+    static std::shared_ptr<Npc> fConvertNpc(json &json_npc); // converts json into npc
+    static std::shared_ptr<Terrain> fConvertTerrain(json &json_terrain); // converts json into terrain
+    static std::shared_ptr<Character> fConvertCharacter(json &json_character); // converts json into character
+    //static std::shared_ptr<Board> fConvertBoard(json &json_board); // converts json into board
 };
 #endif // !__USER_ACTIONS_HPP__

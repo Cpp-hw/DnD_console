@@ -1014,3 +1014,32 @@ std::string UserActions::fLogout(std::string &session)
 	session.clear();
 	return session;
 }
+
+std::shared_ptr<Npc> UserActions::fConvertNpc(json &json_npc)
+{
+    std::shared_ptr<Npc> npc(new Npc(json_npc));
+    
+    return npc ;
+}
+
+std::shared_ptr<Terrain> UserActions::fConvertTerrain(json &json_terrain)
+{
+    std::shared_ptr<Terrain> terrain(new Terrain(json_terrain));
+    
+    return terrain ;
+}
+
+std::shared_ptr<Character> UserActions::fConvertCharacter(json &json_character)
+{
+    std::shared_ptr<Character> character(new Character(json_character));
+    
+    return character ;
+}
+
+/*
+ std::shared_ptr<Board> UserActions::fConvertBoard(json &json_board)
+ {
+ std::shared_ptr<Board> board(new Board(json_board));
+ 
+ return board ;
+ }*/
