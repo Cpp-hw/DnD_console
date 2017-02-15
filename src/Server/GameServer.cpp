@@ -1089,7 +1089,7 @@ void fSendBoard(std::string &json_response, nlohmann::json &json_request)
             }
             else
             {
-                query = "SELECT b.name, b.width, b.height, b.description, b.id_owner, n.id_npc, n.npc_x, n.npc_y FROM Boards b, BN_Map n, BT_Map t WHERE b.id = '" + board_id + "' AND b.id_owner = '" + id_user + "' AND n.id_board = b.id;";
+                query = "SELECT b.name, b.width, b.height, b.description, b.id_owner, n.id_npc, n.npc_x, n.npc_y FROM Boards b, BN_Map n WHERE b.id = '" + board_id + "' AND b.id_owner = '" + id_user + "' AND n.id_board = b.id;";
                 json_result = data_base.fExecuteQuery(query);
                 cout << query << "\nRESULT:\n" << json_result << endl;
                 query_result = json_result["result"];
