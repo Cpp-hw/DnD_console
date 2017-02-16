@@ -39,7 +39,7 @@ Npc::Npc(string &owner,
 
 Npc::Npc(json &jsonData)
 {
-    _owner = jsonData["session"];
+    _owner = jsonData["id_owner"];
     _name = jsonData["npc"];
     _type = jsonData["type"];
     _level = jsonData["level"];
@@ -379,12 +379,12 @@ void Npc::fSetAbilities() // asks user for defining abilities points
 
 void Npc::fAddNpc() // creates NPC
 {
+    cin.clear();
+    cin.ignore();
     cout << "********** NPC **********" << endl;
     string name;
     do
     {
-        cin.clear();
-        cin.ignore();
         cout << "Input a name: ";
         getline(cin, name);
         

@@ -32,10 +32,16 @@ public:
 	static json fLoadMyTerrains(const std::string &session);  //load user terrains
 	static json fLoadTerrain(const std::string &session);     //load switched terrain
 	static json fCreateCharacter(const std::string &session); //method for character creation
+	static json fEditCharacter(json &json_character); //edit character by id
+	static json fDeleteCharacter(const std::string &session); //delete character by id
 	static json fLoadCharacterByName(const std::string &session); //method for load user character
     static json fLoadMyCharacters(const std::string &session); //method for load user characters
     static json fLoadMyBoards(const std::string &session); // loads full list of my boards
     static json fLoadBoard(const std::string &session); // loads one board by its id
 	static std::string fLogout(std::string &session); //drop user session
+    static std::shared_ptr<Npc> fConvertNpc(json &json_npc); // converts json into npc
+    static std::shared_ptr<Terrain> fConvertTerrain(json &json_terrain); // converts json into terrain
+    static std::shared_ptr<Character> fConvertCharacter(json &json_character); // converts json into character
+    //static std::shared_ptr<Board> fConvertBoard(json &json_board); // converts json into board
 };
 #endif // !__USER_ACTIONS_HPP__

@@ -14,161 +14,16 @@ HttpClient::HttpClient(boost::asio::io_service& io_service, const std::string &s
 	// Start an asynchronous resolve to translate the server and service names
 	// into a list of endpoints.
 	tcp::resolver::query query(server, port);
-	_resolver.async_resolve(query, boost::bind(&HttpClient::fHandleResolve, this, boost::asio::placeholders::error, boost::asio::placeholders::iterator));
-}
-
-
-void HttpClient :: fHandleResolve(const boost::system::error_code& err, tcp::resolver::iterator endpoint_iterator)
-{
-	if (!err)
-	{
-		// Attempt a connection to the first endpoint in the list. Each endpoint
-		// will be tried until we successfully establish a connection.
-		tcp::endpoint endpoint = *endpoint_iterator;
-		_socket.async_connect(endpoint, boost::bind(&HttpClient::fHandleConnect, this, boost::asio::placeholders::error, ++endpoint_iterator));
-	}
-	else
-	{
-		std::cout << "Error: " << err.message() << "\n";
-	}
-}
-
-/*
-    Method for connecting to server.
-*/
-void HttpClient :: fHandleConnect(const boost::system::error_code& err, tcp::resolver::iterator endpoint_iterator)
-{
-	if (!err)
-	{
-		// The connection was successful. Send the request.
-		boost::asio::async_write(_socket, _request, boost::bind(&HttpClient::fHandleWriteRequest, this, boost::asio::placeholders::error));
-	}
-	else if (endpoint_iterator != tcp::resolver::iterator())
-	{
-		// The connection failed. Try the next endpoint in the list.
-		_socket.close();
-		tcp::endpoint endpoint = *endpoint_iterator;
-		_socket.async_connect(endpoint, boost::bind(&HttpClient::fHandleConnect, this, boost::asio::placeholders::error, ++endpoint_iterator));
-	}
-	else
-	{
-		std::cout << "Error: " << err.message() << "\n";
-	}
+	_endpoint_iterator = _resolver.resolve(query);
 }
 
 
 /*
-    Method for sending request to server.
-*/
-
-void HttpClient:: fHandleWriteRequest(const boost::system::error_code& err)
-{
-	if (!err)
-	{
-		// Read the response status line.
-		boost::asio::async_read_until(_socket, _response, "\r\n", boost::bind(&HttpClient::fHandleReadStatusLine, this, boost::asio::placeholders::error));
-	}
-	else
-	{
-		std::cout << "Error: " << err.message() << "\n";
-	}
-}
-
-/*
-    Method for getting connection status.
-*/
-void HttpClient:: fHandleReadStatusLine(const boost::system::error_code& err)
-{
-	if (!err)
-	{
-		// Check that response is OK.
-		std::istream response_stream(&_response);
-		std::string http_version;
-		response_stream >> http_version;
-		unsigned int status_code;
-		response_stream >> status_code;
-		std::string status_message;
-		std::getline(response_stream, status_message);
-		if (!response_stream || http_version.substr(0, 5) != "HTTP/")
-		{
-			std::cout << "Invalid response\n";
-			return;
-		}
-		if (status_code != 200)
-		{
-			std::cout << "Response returned with status code ";
-			std::cout << status_code << "\n";
-			return;
-		}
-
-		// Read the response headers, which are terminated by a blank line.
-		boost::asio::async_read_until(_socket, _response, "\r\n\r\n", boost::bind(&HttpClient::fHandleReadHeaders, this, boost::asio::placeholders::error));
-	}
-	else
-	{
-		std::cout << "Error: " << err << "\n";
-	}
-}
 
 
-/*
-    Method for reading headers.
-*/
-void HttpClient:: fHandleReadHeaders(const boost::system::error_code& err)
-{
-	if (!err)
-	{
-		// Process the response headers.
-		std::istream response_stream(&_response);
-		std::string header;
-		while (std::getline(response_stream, header) && header != "\r")
-			std::cout << header << "\n";
-		std::cout << "\n";
-
-		// Write whatever content we already have to output.
-		
-		if (_response.size() > 0)
-		{
-			std::istream istream(&_response);
-			std::getline(istream, _response_string);
-			std::cout << &_response;
-			
-		}
-		
-		// Start reading remaining data until EOF.
-		boost::asio::async_read(_socket, _response, boost::asio::transfer_at_least(1), boost::bind(&HttpClient::fHandleReadContent, this, boost::asio::placeholders::error));
-	}
-	else
-	{
-		std::cout << "Error: " << err << "\n";
-	}
-}
-
-/*
-    Method for getting server response.
-*/
-void HttpClient:: fHandleReadContent(const boost::system::error_code& err)
-{
-	if (!err)
-	{
-		// Write all of the data that has been read so far.
-		std::istream istream(&_response);
-		std::getline(istream, this->_response_string);
-		std::cout << &_response;
-		// Continue reading remaining data until EOF.
-		boost::asio::async_read(_socket, _response, boost::asio::transfer_at_least(1), boost::bind(&HttpClient::fHandleReadContent, this, boost::asio::placeholders::error));
-	}
-	else if (err != boost::asio::error::eof)
-	{
-		std::cout << "Error: " << err << "\n";
-	}
-}
-
-
-/*
     Method for getting data from server.
 */
-void HttpClient::fGetData(const std::string &path)
+void HttpClient::fGet(const std::string &path)
 {
 	// Form the request.
 	std::ostream request_stream(&_request);
@@ -176,14 +31,18 @@ void HttpClient::fGetData(const std::string &path)
 	request_stream << "Host: " << _server << "\r\n";		    // Host "localhost" for example
 	request_stream << "Accept: *///*//\r\n";   
 	request_stream << "Connection: close\r\n\r\n";
+	
+	boost::asio::write(_socket, _request);
 }
 
 /*
 	Method for postring data to server.
 */
-void HttpClient::fPostData(const std::string &path, const std::string &data)
+void HttpClient::fPost(const std::string &path, const std::string &data)
 {
 	//Form the request
+
+	//boost::asio::connect(_socket, _endpoint_iterator);
 	std::ostream request_stream(&_request);
 	request_stream << "POST " << path << " HTTP/1.1\r\n";	                // Request type and path
 	request_stream << "Host: " << _server << " \r\n";		                // Host "localhost" for example
@@ -192,9 +51,11 @@ void HttpClient::fPostData(const std::string &path, const std::string &data)
 	request_stream << "Content-Length: " << data.length() << " \r\n";
 	request_stream << "Connection: close\r\n\r\n";
 	request_stream << data;                                                 // JSON data
+	
+	boost::asio::write(_socket, _request);
 }
 
-void HttpClient::fPutData(const std::string &path, const std::string &data)
+void HttpClient::fPut(const std::string &path, const std::string &data)
 {
 	std::ostream request_stream(&_request);
 	request_stream << "PUT " << path << " HTTP/1.1\r\n";	                // Request type and path
@@ -205,10 +66,10 @@ void HttpClient::fPutData(const std::string &path, const std::string &data)
 	request_stream << "Connection: close\r\n\r\n";
 	request_stream << data;                                                 // JSON data
 
-
+	boost::asio::write(_socket, _request);
 }
 
-void HttpClient::fDeleteData(const std::string &path, const std::string &data)
+void HttpClient::fDelete(const std::string &path, const std::string &data)
 {
 	std::ostream request_stream(&_request);
 	request_stream << "DELETE " << path << " HTTP/1.1\r\n";	                // Request type and path
@@ -217,41 +78,101 @@ void HttpClient::fDeleteData(const std::string &path, const std::string &data)
 	request_stream << "Content-Type: " << "application/json" << " \r\n";
 	request_stream << "Content-Length: " << data.length() << " \r\n";
 	request_stream << "Connection: close\r\n\r\n";
-	request_stream << data;                                                 // JSON data
-
+	request_stream << data; 
+	// JSON data
+	boost::asio::write(_socket, _request);
 }
 
-void HttpClient::fRequest(const Methods &method,const std::string &path, const std::string &data=" ")
+void HttpClient::fSendRequest(const Methods &method,const std::string &path, const std::string &data=" ")
 {
 	switch (method)
 	{
 	case HttpClient::Methods::_GET:
 	{
-		fGetData(path);
+		fConnect();
+		fGet(path);
 	}
 	break;
 	case HttpClient::Methods::_POST:
 	{
-		fPostData(path, data);
+		fConnect();
+		fPost(path, data);
 	}
 	break;
 	case HttpClient::Methods::_PUT:
 	{
-		fPutData(path,data);
+		fConnect();
+		fPut(path,data);
 	}
 	break;
 	case HttpClient::Methods::_DELETE:
 	{
-		fDeleteData(path, data);
+		fConnect();
+		fDelete(path, data);
 	}
 	}
+}
+
+void HttpClient::fGetResponse(std::string &response_)
+{
+	boost::asio::streambuf response;
+	boost::asio::read_until(_socket, response, "\r\n");
+
+	// Check that response is OK.
+	std::istream response_stream(&response);
+	std::string http_version;
+	response_stream >> http_version;
+	unsigned int status_code;
+	response_stream >> status_code;
+	std::string status_message;
+	std::getline(response_stream, status_message);
+	if (!response_stream || http_version.substr(0, 5) != "HTTP/")
+	{
+		std::cout << "Invalid response\n";
+	}
+	if (status_code != 200)
+	{
+		std::cout << "Response returned with status code " << status_code << "\n";
+	}
+
+	// Read the response headers, which are terminated by a blank line.
+	boost::asio::read_until(_socket, response, "\r\n\r\n");
+
+	// Process the response headers.
+	std::string header;
+	while (std::getline(response_stream, header) && header != "\r")
+		std::cout << header << "\n";
+	std::cout << "\n";
+
+	// Write whatever content we already have to output.
+	std::ostringstream oss;
+
+	if (response.size() > 0)
+	{
+		oss << &response;
+	}
+	// Read until EOF, writing data to output as we go.
+	boost::system::error_code error;
+	while (boost::asio::read(_socket, response,
+		boost::asio::transfer_at_least(1), error))
+		oss << &response;
+	if (error != boost::asio::error::eof)
+		throw boost::system::system_error(error);
+	response_ = oss.str();
+}
+
+void HttpClient::fConnect()
+{
+	boost::asio::connect(_socket, _endpoint_iterator);
 }
 
 /*
 	Method for getting response from server.
 */
-std::string HttpClient::fGetResponse()
-{
-	return this->_response_string;
-}
+//std::string HttpClient::fGetResponse()
+//{
+//	//fReadResponse();
+//	return this->_response_string;
+//	_socket.close();
+//}
 

@@ -22,6 +22,8 @@ class Terrain
 public:
 	Terrain();
 	Terrain(const std::string &owner, const std::string &name, const std::string &type, const std::string &width, const std::string &height, const std::string &description);
+    
+    Terrain(json &jsonData); // creates Terrain from json
 
 	void fShowTerrain();
 	json fTerrain_To_Json();

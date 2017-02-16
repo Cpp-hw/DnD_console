@@ -19,27 +19,20 @@ private:
 	std::string _response_string;         // response string from response buffer
 	boost::asio::streambuf _request;      // buffer for request
 	boost::asio::streambuf _response;     // buffer for response
+	tcp::resolver::iterator _endpoint_iterator;
 
-	void fHandleResolve(const boost::system::error_code &err, tcp::resolver::iterator endpoint_iterator);
 
-	void fHandleConnect(const boost::system::error_code &err, tcp::resolver::iterator endpoint_iterator);
 
-	void fHandleWriteRequest(const boost::system::error_code &err);
+	void fPost(const std::string &path, const std::string &data);
 
-	void fHandleReadStatusLine(const boost::system::error_code &err);
+	void fGet(const std::string &path);
 
-	void fHandleReadHeaders(const boost::system::error_code &err);
+	void fPut(const std::string &path, const std::string &data);
 
-	void fHandleReadContent(const boost::system::error_code &err);
-	
+	void fDelete(const std::string &path, const std::string &data);
 
-	void fPostData(const std::string &path, const std::string &data);
+	void fConnect();
 
-	void fGetData(const std::string &path);
-
-	void fPutData(const std::string &path, const std::string &data);
-
-	void fDeleteData(const std::string &path, const std::string &data);
 
 	public:
 
@@ -52,7 +45,9 @@ private:
 
 		HttpClient(boost::asio::io_service& io_service, const std::string &server, const std::string &port);
 		
-		void fRequest(const Methods &method,const std::string &path, const std::string &data);
+		void fSendRequest(const Methods &method,const std::string &path, const std::string &data);
 
-		std::string fGetResponse();
+		//std::string fGetResponse();
+		void fGetResponse(std::string &response);
+
 };

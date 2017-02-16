@@ -1,13 +1,16 @@
 #include "Includes/GameClient.hpp"
 
-//boost::asio::io_service io_service;  // io_service represents your program's link to the operating system's I/O services.
+
+
+boost::asio::io_service io_service;  // io_service represents your program's link to the operating system's I/O services.
 
 
 
 
-GameClient::GameClient()
+GameClient::GameClient(const std::string &host, const std::string &port)
 {
-	
+	_http_client=new HttpClient(io_service, host, port);
+
 }
 char GameClient::fGetInput()
 {
@@ -16,20 +19,8 @@ char GameClient::fGetInput()
 	return choice;
 }
 
-void SendRequest(const HttpClient::Methods &method, std::string &host, std::string &port,const std::string &url, std::string &response, std::string &data)
-{
-	boost::asio::io_service *io_service = new boost::asio::io_service;
 
-	HttpClient *http_client = new HttpClient(*io_service, host, port);
-	
-	http_client->fRequest(method, url, data);
-	io_service->run();
-	response = http_client->fGetResponse();
-	delete http_client;
-	delete io_service;
-}
-
-void GameClient::fDisplayDmMenu(std::string &host, std::string &port, const std::string &user_session)
+void GameClient::fDisplayDmMenu(const std::string &user_session)
 {
 	int choice = -1;
 
@@ -48,12 +39,12 @@ void GameClient::fDisplayDmMenu(std::string &host, std::string &port, const std:
 		case 1:
 		{
 
-			fDisplayNPCMenu(host,port,user_session);
+			fDisplayNPCMenu(user_session);
 		}
 		break;
         case 2:
         {
-			fDisplayTerrainMenu(host, port, user_session);
+			fDisplayTerrainMenu(user_session);
             
         }
             break;
@@ -66,7 +57,7 @@ void GameClient::fDisplayDmMenu(std::string &host, std::string &port, const std:
 	} while (choice != 0);
 }
 
-void GameClient::fDisplayPlayerMenu(std::string &host, std::string &port,const std::string &user_session)
+void GameClient::fDisplayPlayerMenu(const std::string &user_session)
 {
 	int choice = -1;
 	
@@ -74,8 +65,10 @@ void GameClient::fDisplayPlayerMenu(std::string &host, std::string &port,const s
 	{
 		std::cout << "********** Player Mode **********" << std::endl;
 		std::cout << "1. Create character" << std::endl;
-		//std::cout << "2. Load character by name" << std::endl;
-		//std::cout << "3. Full list of my characters" << std::endl;
+		std::cout << "2. Edit character" << std::endl;
+		std::cout << "3. Load character by name" << std::endl;
+		std::cout << "4. Full list of my characters" << std::endl;
+		std::cout << "5. Delete character" << std::endl;
 		std::cout << "0.  Back to previous  menu" << std::endl;
 		std::cout << "Enter choice:" << std::endl;
 
@@ -86,32 +79,61 @@ void GameClient::fDisplayPlayerMenu(std::string &host, std::string &port,const s
 		{
 			std::string request = UserActions::fCreateCharacter(user_session).dump();
 			std::string response;
-			SendRequest(HttpClient::_POST, host, port, "/api/addcharacter", response, request);
-			std::cout << "Response: " << response << std::endl;
+			_http_client->fSendRequest(HttpClient::_POST, "/api/addcharacter", request);
+			_http_client->fGetResponse(response);
+			std::cout << response << std::endl;
 		}
 		break;
 		case 2:
 		{
-			std::string request = UserActions::fLoadCharacterByName(user_session).dump();
+			std::cout << "Which Character do you want to edit? ";
+			auto temp_request = UserActions::fLoadCharacterByName(_game_session).dump();
+			std::string temp_response;
+			_http_client->fSendRequest(HttpClient::_POST, "/api/loaddefinedcharacter", temp_request);
+			_http_client->fGetResponse(temp_response);
+			json response_json = json::parse(temp_response.c_str());
+			response_json.erase("status");
+			response_json.erase("characters_quantity");
+			auto request = UserActions::fEditCharacter(response_json).dump();
 			std::string response;
-			SendRequest(HttpClient::_POST, host, port, "/api/loaddefinedcharacter", response, request);
-			std::cout << "Response: " << response << std::endl;
-
+			_http_client->fSendRequest(HttpClient::_POST, "/api/editcharacter", temp_request);
+			_http_client->fGetResponse(response);
+			std::cout << temp_response << std::endl;
 		}
 		break;
 		case 3:
 		{
+			std::string request = UserActions::fLoadCharacterByName(user_session).dump();
+			std::string response;
+			_http_client->fSendRequest(HttpClient::_POST, "/api/loaddefinedcharacter", request);
+			_http_client->fGetResponse(response);
+			std::cout << response << std::endl;
+
+		}
+		break;
+		case 4:
+		{
 			auto request = UserActions::fLoadMyCharacters(_game_session).dump();
 			std::string response;
-			SendRequest(HttpClient::_POST, host, port, "/api/loadmycharacterslist", response, request);
-			std::cout << "Response: " << response << std::endl;
+			_http_client->fSendRequest(HttpClient::_POST, "/api/loadmycharacterslist", request);
+			_http_client->fGetResponse(response);
+			std::cout << response << std::endl;
+		}
+		break;
+		case 5:
+		{
+			auto request = UserActions::fDeleteCharacter(_game_session).dump();
+			std::string response;
+			_http_client->fSendRequest(HttpClient::_POST, "/api/deletecharacter", request);
+			_http_client->fGetResponse(response);
+			std::cout << response << std::endl;
 		}
 		break;
 		}
 	} while (choice != 0);
 }
 
-void GameClient::fSwitchMode(std::string &host,std::string &port, const std::string &user_session)
+void GameClient::fSwitchMode(const std::string &user_session)
 {
 	int mode = -1;
 
@@ -130,12 +152,12 @@ void GameClient::fSwitchMode(std::string &host,std::string &port, const std::str
 		{
 		case 1:
 		{
-			fDisplayPlayerMenu(host, port,user_session);
+			fDisplayPlayerMenu(user_session);
 		}
 		break;
 		case 2:
 		{
-			fDisplayDmMenu(host,port,user_session);
+			fDisplayDmMenu(user_session);
 		}
 		break;
 		case 0:
@@ -148,7 +170,7 @@ void GameClient::fSwitchMode(std::string &host,std::string &port, const std::str
 	} while (mode != 0);
 }
 
-void GameClient::fDisplayNPCMenu(std::string &host, std::string &port, const std::string &user_session)
+void GameClient::fDisplayNPCMenu(const std::string &user_session)
 {
 	int choice = -1;
 
@@ -157,9 +179,9 @@ void GameClient::fDisplayNPCMenu(std::string &host, std::string &port, const std
 		std::cout << "********** NPC Menu **********" << std::endl;
 		std::cout << "1. Create NPC" << std::endl;
 		std::cout << "2. Show my NPCs" << std::endl;
-		std::cout << "3. Load NPC by it's id" << std::endl;
-		std::cout << "4. Edit NPC by it's id" << std::endl;
-		std::cout << "5. Delete NPC by it's id" << std::endl;
+		std::cout << "3. Load NPC by its id" << std::endl;
+		std::cout << "4. Edit my NPC by its id" << std::endl;
+		std::cout << "5. Delete my NPC by its id" << std::endl;
 		std::cout << "0. Back to previous  menu" << std::endl;
 		std::cout << "Enter choice: ";  // user enter option 
 
@@ -172,27 +194,66 @@ void GameClient::fDisplayNPCMenu(std::string &host, std::string &port, const std
 
 			std::string request = UserActions::fCreateNpc(user_session).dump();
 			std::string response;
-			SendRequest(HttpClient::_POST, host, port, "/api/addnpc", response, request);
-			std::cout << "Response: " << response << std::endl;
-
-			//_http_client->fPostData("/api/addnpc", request);
+			_http_client->fSendRequest(HttpClient::_POST, "/api/addnpc", request);
+			_http_client->fGetResponse(response);
+			//std::cout << response << std::endl;
+            json response_json = json::parse(response.c_str());
+            
+            if (response_json["status"] == "success")
+            {
+                cout << "NPC is added. It's id: " << response_json["npc_id"] << endl;
+            }
+            else
+                cout << response_json["message"] << endl;
 		}
 		break;
 		case 2:
 		{
 			auto request = UserActions::fLoadMyNpcs(_game_session).dump();
 			std::string response;
-			SendRequest(HttpClient::_POST, host, port, "/api/loadmynpcslist", response, request);
-			std::cout << "Response: " << response << std::endl;
-
+			_http_client->fSendRequest(HttpClient::_POST, "/api/loadmynpcslist", request);
+			_http_client->fGetResponse(response);
+			//std::cout << response << std::endl;
+            json response_json = json::parse(response.c_str());
+            
+            if (response_json["status"] == "success")
+            {
+                response_json.erase("status");
+                string npc_qtt = (response_json["npcs_quantity"]);
+                response_json.erase("npcs_quantity");
+                json npcs_list = response_json["list"];
+                
+                for (int i = 0; i < stoi(npc_qtt); i++)
+                {
+                    cout << "********** NPC **********" << endl;
+                    std::shared_ptr<Npc> npc = UserActions::fConvertNpc(npcs_list[i]);
+                    npc->fShowNpc();
+                    cout << endl;
+                }
+            }
+            else
+                cout << response_json["message"] << endl;
 		}
 		break;
 		case 3:
 		{
 			auto request = UserActions::fLoadNpc(_game_session).dump();
 			std::string response;
-			SendRequest(HttpClient::_POST, host, port, "/api/loadnpc", response, request);
-			std::cout << "Respone: " << response << std::endl;
+			_http_client->fSendRequest(HttpClient::_POST, "/api/loadnpc", request);
+			_http_client->fGetResponse(response);
+			//std::cout << response << std::endl;
+            json response_json = json::parse(response.c_str());
+            
+            if (response_json["status"] == "success")
+            {
+                cout << "********** NPC **********" << endl;
+                response_json.erase("status");
+                std::shared_ptr<Npc> npc = UserActions::fConvertNpc(response_json);
+                npc->fShowNpc();
+                cout << endl;
+            }
+            else
+                cout << response_json["message"] << endl;
 		}
 		break;
 		case 4:
@@ -200,22 +261,39 @@ void GameClient::fDisplayNPCMenu(std::string &host, std::string &port, const std
 			std::cout << "Which NPC do you want to edit? ";
 			auto temp_request = UserActions::fLoadNpc(_game_session).dump();
 			std::string temp_response;
-			SendRequest(HttpClient::_POST, host, port, "/api/loadnpc", temp_response, temp_request);
+			_http_client->fSendRequest(HttpClient::_POST, "/api/loadmynpc", temp_request);
+			_http_client->fGetResponse(temp_response);
 			json response_json = json::parse(temp_response.c_str());
-			response_json.erase("status");
-
-			auto request = UserActions::fEditNpc(response_json).dump();
-			std::string response;
-			SendRequest(HttpClient::_POST, host, port, "/api/editnpc", response, request);
-			std::cout << "Respone: " << response << std::endl;
+            
+            if (response_json["status"] == "success")
+            {
+                response_json.erase("status");
+                auto request = UserActions::fEditNpc(response_json).dump();
+                std::string response;
+                _http_client->fSendRequest(HttpClient::_POST, "/api/editnpc", temp_request);
+                _http_client->fGetResponse(response);
+                //std::cout << response << std::endl;
+                if (response_json["status"] == "success")
+                {
+                    cout << "NPC is edited. It's id: " << response_json["npc_id"] << endl;
+                }
+                else
+                    cout << response_json["message"] << endl;
+            }
+            else
+                cout << response_json["message"] << endl;
 		}
 		break;
 		case 5:
 		{
 			auto request = UserActions::fDeleteNpc(_game_session).dump();
 			std::string response;
-			SendRequest(HttpClient::_POST, host, port, "/api/deletenpc", response, request);
-			std::cout << "Respone: " << response << std::endl;
+			_http_client->fSendRequest(HttpClient::_POST, "/api/deletenpc", request);
+			_http_client->fGetResponse(response);
+			//std::cout << response << std::endl;
+            json response_json = json::parse(response.c_str());
+            
+            cout << response_json["message"] << endl;
 		}
 		break;
 		case 0:
@@ -227,7 +305,7 @@ void GameClient::fDisplayNPCMenu(std::string &host, std::string &port, const std
 	} while (choice != 0);
 }
 
-void GameClient::fDisplayTerrainMenu(std::string &host, std::string &port, const std::string &user_session)
+void GameClient::fDisplayTerrainMenu(const std::string &user_session)
 {
 	int choice = -1;
 
@@ -249,40 +327,94 @@ void GameClient::fDisplayTerrainMenu(std::string &host, std::string &port, const
 		{
 			std::string request = UserActions::fCreateTerrain(user_session).dump();
 			std::string response;
-			SendRequest(HttpClient::_POST, host, port, "/api/addterrain", response, request);
-			std::cout << "Response: " << response << std::endl;
-
-			//std::string request = UserActions::fCreateTerrain(user_session).dump();
-			//_http_client->fPostData("/api/addterrain", request);
+			_http_client->fSendRequest(HttpClient::_POST, "/api/addterrain", request);
+			_http_client->fGetResponse(response);
+			//std::cout << response << std::endl;
+            json response_json = json::parse(response.c_str());
+            
+            if (response_json["status"] == "success")
+            {
+                cout << "Terrain is added. It's id: " << response_json["terrain_id"] << endl;
+            }
+            else
+                cout << response_json["message"] << endl;
 		}
 		break;
 		case 2:
 		{
-
 			std::string request = UserActions::fShowFullListOfTerrains(_game_session).dump();
 			std::string response;
-			SendRequest(HttpClient::_POST, host, port, "/api/loaddefinedterrains", response, request);
-			std::cout << "Response: " << response << std::endl;
-
-			//std::string request = UserActions::fShowFullListOfTerrains().dump();
-			//std::cout << request << std::endl;
-			//_http_client->fPostData("/api/loadterrain",request);
+			_http_client->fSendRequest(HttpClient::_POST, "/api/loaddefinedterrains", request);
+			_http_client->fGetResponse(response);
+			//std::cout << response << std::endl;
+            json response_json = json::parse(response.c_str());
+            
+            if (response_json["status"] == "success")
+            {
+                response_json.erase("status");
+                string terrain_qtt = (response_json["terrains_quantity"]);
+                response_json.erase("terrains_quantity");
+                json terrains_list = response_json["list"];
+                
+                for (int i = 0; i < stoi(terrain_qtt); i++)
+                {
+                    cout << "******** Terrain ********" << endl;
+                    std::shared_ptr<Terrain> terrain = UserActions::fConvertTerrain(terrains_list[i]);
+                    terrain->fShowTerrain();
+                    cout << endl;
+                }
+            }
+            else
+                cout << response_json["message"] << endl;
 		}
 		break;
 		case 3:
 		{
-			auto request = UserActions::fLoadMyTerrains(_game_session).dump();
+			std::string request = UserActions::fLoadMyTerrains(_game_session).dump();
 			std::string response;
-			SendRequest(HttpClient::_POST, host, port, "/api/loadmyterrainslist", response, request);
-			std::cout << "Response: " << response << std::endl;
+			_http_client->fSendRequest(HttpClient::_POST, "/api/loadmyterrainslist", request);
+			_http_client->fGetResponse(response);
+			//std::cout << response << std::endl;
+            json response_json = json::parse(response.c_str());
+            
+            if (response_json["status"] == "success")
+            {
+                response_json.erase("status");
+                string terrain_qtt = (response_json["terrains_quantity"]);
+                response_json.erase("terrains_quantity");
+                json terrains_list = response_json["list"];
+                
+                for (int i = 0; i < stoi(terrain_qtt); i++)
+                {
+                    cout << "******** Terrain ********" << endl;
+                    std::shared_ptr<Terrain> terrain = UserActions::fConvertTerrain(terrains_list[i]);
+                    terrain->fShowTerrain();
+                    cout << endl;
+                }
+            }
+            else
+                cout << response_json["message"] << endl;
 		}
 		break;
 		case 4:
 		{
-			auto request = UserActions::fLoadTerrain(_game_session).dump();
+			std::string request = UserActions::fLoadTerrain(_game_session).dump();
 			std::string response;
-			SendRequest(HttpClient::_POST, host, port, "/api/loadterrain", response, request);
-			std::cout << "Respone: " << response << std::endl;
+			_http_client->fSendRequest(HttpClient::_POST, "/api/loadterrain", request);
+			_http_client->fGetResponse(response);
+			//std::cout << response << std::endl;
+            json response_json = json::parse(response.c_str());
+            
+            if (response_json["status"] == "success")
+            {
+                cout << "******** Terrain ********" << endl;
+                response_json.erase("status");
+                std::shared_ptr<Terrain> terrain = UserActions::fConvertTerrain(response_json);
+                terrain->fShowTerrain();
+                cout << endl;
+            }
+            else
+                cout << response_json["message"] << endl;
 		}
 		break;
 		case 0:
@@ -294,18 +426,18 @@ void GameClient::fDisplayTerrainMenu(std::string &host, std::string &port, const
 	} while (choice != 0);
 }
 
-void GameClient::fDisplayBoardMenu(std::string &host, std::string &port, const std::string &user_session)
+void GameClient::fDisplayBoardMenu(const std::string &user_session)
 {
     int choice = -1;
     
     do
     {
         std::cout << "********** Board Menu **********" << std::endl;
-        std::cout << "1. Create board" << std::endl;
+        //std::cout << "1. Create board" << std::endl;
         std::cout << "2. Show my boards" << std::endl;
         std::cout << "3. Load board by its id" << std::endl;
-        std::cout << "0. Back to previous  menu" << std::endl;
         std::cout << "4. Edit my board by its id" << std::endl;
+        std::cout << "0. Back to previous  menu" << std::endl;
         std::cout << "Enter choice: ";  // user enter option
         
         choice = fGetInput() - 48;
@@ -314,35 +446,64 @@ void GameClient::fDisplayBoardMenu(std::string &host, std::string &port, const s
         {
             case 1:
             {
-                //auto request = ...; - place for request creation
+                /*auto request = "{\"session_id\":\"1\", \"board\":\"temp1\", \"width\":\"15\", \"height\":\"15\", \"description\":\"desc\"}";
                 std::string response;
                 _http_client->fSendRequest(HttpClient::_POST, "/api/addboard", request);
                 _http_client->fGetResponse(response);
                 std::cout << response << std::endl;
                 
-                //request = ...; - place for request creation
-                response;
-                _http_client->fSendRequest(HttpClient::_POST, "/api/addobjectonboard", request);
-                _http_client->fGetResponse(response);
-                std::cout << response << std::endl;
-
+                /*request = "{\"session_id\":\"1\", \"id_board\":\"5\", \"data\":[{\"id\": \"9\", \"pos_x\": \"8\", \"pos_y\": \"7\", \"type\": \"npc\" }, { \"id\": \"7\", \"pos_x\": \"6\", \"pos_y\": \"7\", \"type\": \"npc\" }, { \"id\": \"4\", \"pos_x\": \"9\", \"pos_y\": \"10\", \"type\": \"npc\" }, { \"id\": \"5\", \"pos_x\": \"8\", \"pos_y\": \"6\", \"type\": \"npc\" }, { \"id\": \"6\", \"pos_x\": \"7\", \"pos_y\": \"9\", \"type\": \"npc\" } ], \"data_count\": \"5\" }";
+                 //std::string response;
+                 _http_client->fSendRequest(HttpClient::_POST, "/api/addobjectonboard", request);
+                 _http_client->fGetResponse(response);
+                 std::cout << response << std::endl;*/
             }
                 break;
             case 2:
             {
                 auto request = UserActions::fLoadMyBoards(_game_session).dump();
                 std::string response;
-                SendRequest(HttpClient::_POST, host, port, "/api/loadmyboardslist", response, request);
-                std::cout << "Response: " << response << std::endl;
+                _http_client->fSendRequest(HttpClient::_POST, "/api/loadmyboardslist", request);
+                _http_client->fGetResponse(response);std::cout << response << std::endl;
+                /*json response_json = json::parse(response.c_str());
                 
-            }
+                if (response_json["status"] == "success")
+                {
+                    response_json.erase("status");
+                    string board_qtt = (response_json["boards_quantity"]);
+                    response_json.erase("boards_quantity");
+                    json npcs_list = response_json["list"];
+                    
+                    for (int i = 0; i < stoi(board_qtt); i++)
+                    {
+                        cout << "********* Board *********" << endl;
+                        std::shared_ptr<Board> board = UserActions::fConvertBoard(boards_list[i]);
+                        board->fShowBoard();
+                        cout << endl;
+                    }
+                }
+                else
+                    cout << response_json["message"] << endl;*/            }
                 break;
             case 3:
             {
                 auto request = UserActions::fLoadBoard(_game_session).dump();
                 std::string response;
-                SendRequest(HttpClient::_POST, host, port, "/api/loadboard", response, request);
-                std::cout << "Respone: " << response << std::endl;
+                _http_client->fSendRequest(HttpClient::_POST, "/api/loadboard", request);
+                _http_client->fGetResponse(response);
+                std::cout << response << std::endl;
+                /*json response_json = json::parse(response.c_str());
+                
+                if (response_json["status"] == "success")
+                {
+                    cout << "********* Board *********" << endl;
+                    response_json.erase("status");
+                    std::shared_ptr<Board> board = UserActions::fConvertBoard(boards_list[i]);
+                    board->fShowBoard();
+                    cout << endl;
+                }
+                else
+                    cout << response_json["message"] << endl;*/
             }
                 break;
             case 4:
@@ -358,23 +519,20 @@ void GameClient::fDisplayBoardMenu(std::string &host, std::string &port, const s
     } while (choice != 0);
 }
 
-void GameClient::fMenu(std::string &host, std::string &port)
+void GameClient::fMenu()
 {
 	int choice = -1;
-
-
+	
 	try
 	{
 		do
 		{
-
-//			system("cls");
 			std::cout << "********** Main Menu **********" << std::endl;
 			std::cout << "1. User registration" << std::endl;
 			std::cout << "2. User login" << std::endl;
 			std::cout << "3. User logout" << std::endl;
 			std::cout << "0. Exit" << std::endl;
-			std::cout << "Enter choice: ";  // user enter option 
+			std::cout << "Enter choice: ";									// user enter option 
 
 			choice = fGetInput()-48;
 
@@ -385,27 +543,19 @@ void GameClient::fMenu(std::string &host, std::string &port)
 
 				std::string request = UserActions::fRegistration().dump();
 				std::string response;
-				SendRequest(HttpClient::_POST,host,port, "/api/userregister", response,request);
-				std::cout << "Response: " << response << std::endl;
-				system("cls");
-
 				
-				//_http_client->fPostData("/api/userregister", request); //send POST request for registration
-				//io_service.run(); // run io_service
+				_http_client->fSendRequest(HttpClient::_POST, "/api/userregister", request);
+				_http_client->fGetResponse(response);
+				std::cout << response << std::endl;
 			}
 			break;
 			case 2:
 			{
 				std::string request = UserActions::fLogin().dump();
 				std::string response;
-				SendRequest(HttpClient::_POST,host, port, "/api/userlogin", response, request);
-				std::cout << "Response: " << response << std::endl;
-
-				//_http_client->fPostData("/api/userlogin", UserActions::fLogin().dump()); // send POST request for logining
-
-				//io_service.run();
-				//_http_client->fGetResponse();
-			
+				_http_client->fSendRequest(HttpClient::_POST, "/api/userlogin", request);
+				_http_client->fGetResponse(response);
+				
 				nlohmann::json json_response = json::parse(response);
 				string status = json_response["status"];
 
@@ -414,7 +564,7 @@ void GameClient::fMenu(std::string &host, std::string &port)
 					_game_session = json_response["session_id"];
 					system("cls");
 
-					fSwitchMode(host,port,_game_session);
+					fSwitchMode(_game_session);
 
 				}
 				else
@@ -430,13 +580,10 @@ void GameClient::fMenu(std::string &host, std::string &port)
 			case 3:
 			{
 				std::string response;
-				SendRequest(HttpClient::_POST,host, port, "/api/userlogout", response, _game_session);
+				_http_client->fSendRequest(HttpClient::_POST, "/api/userlogout", _game_session);
+				_http_client->fGetResponse(response);
+				std::cout << response << std::endl;
 				_game_session = UserActions::fLogout(_game_session);
-				std::cout << "Response: " << response << std::endl;
-
-
-				//_http_client->fPostData("/api/userlogout", _game_session); // drop user session
-				//io_service.run();
 			}
 			break;
 			case 0:
@@ -457,5 +604,5 @@ void GameClient::fMenu(std::string &host, std::string &port)
 
 GameClient::~GameClient()
 {
-	
+	delete _http_client;
 }

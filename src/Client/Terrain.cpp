@@ -13,6 +13,16 @@ Terrain::Terrain(const std::string &owner, const std::string &name, const std::s
 	this->_description = description;
 }
 
+Terrain::Terrain(json &jsonData)
+{
+    _owner = jsonData["id_owner"];
+    _name = jsonData["npc"];
+    _type = jsonData["type"];
+    _height = jsonData["height"];
+    _width = jsonData["width"];
+    _description = jsonData["description"];
+}
+
 void Terrain:: fShowTerrain()
 {
 	std::cout << "Name:" << _name << std::endl;

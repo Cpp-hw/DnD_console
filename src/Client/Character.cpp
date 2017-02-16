@@ -39,6 +39,145 @@ Character::Character(std::string &name,
 	_owner = owner;
 }
 
+Character::Character(json &jsonData)
+{
+	_owner = jsonData["session_id"];
+	_name=jsonData["character"];
+	_race=jsonData["race"];
+	_class=jsonData["class"];
+	_experience = jsonData["experience"];
+	_level = jsonData["level"];
+	_hitpoints=jsonData["hitpoints"];
+	_strength=jsonData["strength"];
+	_strength_mod = jsonData["str_mod"];
+	_dexterity = jsonData["dexterity"];
+	_dexterity_mod = jsonData["dex_mod"];
+	_constitution = jsonData["constitution"];
+	_constitution_mod = jsonData["con_mod"];
+	_intelligence = jsonData["intelligence"];
+	_intelligence_mod = jsonData["int_mod"];
+	_wisdom = jsonData["wisdom"];
+	_wisdom_mod=jsonData["wis_mod"];
+	_charisma=jsonData["charisma"];
+	_charisma_mod = jsonData["cha_mod"];
+}
+
+void Character::fSetName(const std::string &name)
+{
+	this->_name = name;
+}
+
+void Character::fSetClass(const std::string &class_)
+{
+	this->_class = class_;
+}
+
+void Character::fSetRace(const std::string &race)
+{
+	this->_race = race;
+}
+
+void Character::fSetLevel(const std::string &level)
+{
+	_level = level;
+}
+
+void Character::fSetHitpoints(const std::string &hitpoints)
+{
+	_hitpoints = hitpoints;
+}
+
+void  Character::fSetStrength(const std::string &strength)
+{
+	_strength = strength;
+	_strength_mod = fSetAbilityMod(strength);
+}
+
+void Character::fSetDexterity(const std::string &dexterity)
+{
+	_dexterity = dexterity;
+	_dexterity_mod = fSetAbilityMod(dexterity);
+}
+
+void Character::fSetConstitution(const std::string &constitution)
+{
+	_constitution = constitution;
+	_constitution_mod = fSetAbilityMod(constitution);
+}
+
+void Character::fSetIntelligence(const std::string &intelligence)
+{
+	_intelligence = intelligence;
+	_intelligence_mod = fSetAbilityMod(intelligence);
+}
+
+void Character::fSetWisdom(const std::string &wisdom)
+{
+	_wisdom = wisdom;
+	_wisdom_mod = fSetAbilityMod(wisdom);
+}
+
+void Character::fSetCharisma(const std::string &charisma)
+{
+	_charisma = charisma;
+	_charisma_mod = fSetAbilityMod(charisma);
+}
+
+std::string Character::fGetName()
+{
+	return _name;
+}
+
+std::string Character::fGetClass()
+{
+	return _class;
+}
+
+std::string Character::fGetRace()
+{
+	return _race;
+}
+
+std::string Character::fGetLevel()
+{
+	return _level;
+}
+
+std::string Character::fGetHitpoints()
+{
+	return _hitpoints;
+}
+
+std::string Character::fGetStrength()
+{
+	return _strength;
+}
+
+std::string Character::fGetDexterity()
+{
+	return _dexterity;
+}
+
+std::string Character::fGetConstitution()
+{
+	return _constitution;
+}
+
+std::string Character::fGetIntelligence()
+{
+	return _intelligence;
+}
+
+std::string Character::fGetWisdom()
+{
+	return _wisdom;
+}
+
+std::string Character::fGetCharisma()
+{
+	return _charisma;
+}
+
 std::string Character::fSetAbilityMod(std::string ability)
 {
 	int ability_ = std::stoi(ability);
@@ -76,7 +215,6 @@ std::string Character::fSetAbilityMod(std::string ability)
 		return "-3";
 	}
 }
-
 
 void Character::fSetOwner(const std::string &owner)
 {
