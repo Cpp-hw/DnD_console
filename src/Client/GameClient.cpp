@@ -180,8 +180,8 @@ void GameClient::fDisplayNPCMenu(const std::string &user_session)
 		std::cout << "1. Create NPC" << std::endl;
 		std::cout << "2. Show my NPCs" << std::endl;
 		std::cout << "3. Load NPC by its id" << std::endl;
-		std::cout << "4. Edit NPC by its id" << std::endl;
-		std::cout << "5. Delete NPC by its id" << std::endl;
+		std::cout << "4. Edit my NPC by its id" << std::endl;
+		std::cout << "5. Delete my NPC by its id" << std::endl;
 		std::cout << "0. Back to previous  menu" << std::endl;
 		std::cout << "Enter choice: ";  // user enter option 
 
@@ -261,7 +261,7 @@ void GameClient::fDisplayNPCMenu(const std::string &user_session)
 			std::cout << "Which NPC do you want to edit? ";
 			auto temp_request = UserActions::fLoadNpc(_game_session).dump();
 			std::string temp_response;
-			_http_client->fSendRequest(HttpClient::_POST, "/api/loadnpc", temp_request);
+			_http_client->fSendRequest(HttpClient::_POST, "/api/loadmynpc", temp_request);
 			_http_client->fGetResponse(temp_response);
 			json response_json = json::parse(temp_response.c_str());
             
