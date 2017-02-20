@@ -427,7 +427,7 @@ void fSendDefinedTerrains(std::string &json_response, nlohmann::json &json_reque
     {
         string type = json_request["type"];
         string count = json_request["count"];
-        string query = "SELECT id, name, width, height, description, id_owner FROM Terrain LIMIT "+count+";";
+        string query = "SELECT id, name, type, width, height, description, id_owner FROM Terrain WHERE type = '" + type + "' LIMIT " + count + ";";
         nlohmann::json json_result = data_base.fExecuteQuery(query);
         cout << query << "\nRESULT:\n" << json_result << endl;
         string query_result = json_result["result"];
