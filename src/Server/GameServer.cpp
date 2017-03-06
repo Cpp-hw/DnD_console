@@ -997,14 +997,14 @@ void fSaveBoard(std::string &json_response, nlohmann::json &json_request)
         string width       = json_request["width"];
         string height      = json_request["height"];
         string description = json_request["description"];
-        string spawn_x = "";
-        string spawn_y = "";
+        string spawn_x     = "";
+        string spawn_y     = "";
         
         if (json_request.count("spawn_x") > 0)
             spawn_x = json_request["spawn_x"];
         if (json_request.count("spawn_y") > 0)
             spawn_y = json_request["spawn_y"];
-        
+   
         if (DataValidator::fValidate(name,         DataValidator::SQL_INJECTION) &&
             DataValidator::fValidate(width,        DataValidator::SQL_INJECTION) &&
             DataValidator::fValidate(height,       DataValidator::SQL_INJECTION) &&
@@ -1600,6 +1600,7 @@ void fEditBoard(std::string &json_response, nlohmann::json &json_request)
                     if (query_result == "success")
                     {
                         json_response += "{\"status\":\"success\", \"message\": \"board is updated";
+
                         while (data_qtt--)
                         {
                             if (json_request["type"] == "npc")

@@ -1,14 +1,6 @@
 #include "Includes/DmForm.hpp"
 
 
-void DMForm::fClickedNpC()
-{
-    _npc_button_click = true;
-}
-void DMForm::fClickedTerrain()
-{
-    _terrain_button_click = true;
-}
 
 void DMForm::fDisable()
 {
@@ -21,7 +13,7 @@ void DMForm::fInitUIElements()
     auto windowHeight = tgui::bindHeight(_gui);
 
     _theme = std::make_shared<tgui::Theme>("Interface/Game.txt");
-    _main = std::make_shared<tgui::Picture>("Interface/MainMenu.png");
+    _main = std::make_shared<tgui::Picture>("Interface/MainMenu.jpg");
     _main->setSize(tgui::bindMax(1280, windowWidth), tgui::bindMax(800, windowHeight));
     _gui.add(_main);
 
@@ -46,15 +38,19 @@ void DMForm::fInitUIElements()
     _btn_NPC->setText("NPC menu");
     _gui.add(_btn_NPC);
 
+    _btn_Board = _theme->load("Button");
+    _btn_Board->setSize(275, 50);
+    _btn_Board->setPosition(145, 430);
+    _btn_Board->setText("Board menu");
+    _gui.add(_btn_Board);
+
     _btn_back = _theme->load("Button");
     _btn_back->setSize(275, 50);
-    _btn_back->setPosition(145, 430);
+    _btn_back->setPosition(145, 510);
     _btn_back->setText("Back");
     _gui.add(_btn_back);
 
     _btn_back->connect("pressed", &DMForm::fDisable, this);
-    _btn_NPC->connect("pressed", &DMForm::fClickedNpC, this);
-    _btn_Terrain->connect("pressed", &DMForm::fClickedTerrain, this);
 }
 
 
@@ -80,17 +76,33 @@ void DMForm::fUpdate(sf::RenderWindow  &window)
             if (_event.type == sf::Event::Closed)
                 window.close();
 
-            if (_npc_button_click)
+            if (_btn_NPC->mouseOnWidget(_event.mouseButton.x,_event.mouseButton.y))
             {
-                npc_menu_window = new NPCForm(_event, window, _game_session, _http_client);
-                _menu_option = DMForm::NPC_MENU;
+                if (_event.type == sf::Event::MouseButtonReleased && _event.mouseButton.button == sf::Mouse::Left)
+                {
+                        npc_menu_window = new NPCForm(_event, window, _game_session, _http_client);
+                        _menu_option = DMForm::NPC_MENU;
+                    
+                }
             }
 
-            if (_terrain_button_click)
+            if(_btn_Terrain->mouseOnWidget(_event.mouseButton.x, _event.mouseButton.y))
             {
-                terrain_menu_window = new TerrainForm(_event, window, _game_session, _http_client);
-                _menu_option = DMForm::TERRAIN_MENU;
+                  if (_event.type == sf::Event::MouseButtonReleased && _event.mouseButton.button == sf::Mouse::Left)
+                {
+                    terrain_menu_window = new TerrainForm(_event, window, _game_session, _http_client);
+                    _menu_option = DMForm::TERRAIN_MENU;
+                }
             }
+
+            if (_btn_Board->mouseOnWidget(_event.mouseButton.x, _event.mouseButton.y))
+            {
+                if (_event.type == sf::Event::MouseButtonReleased && _event.mouseButton.button == sf::Mouse::Left)
+                {
+                    _menu_option = DMForm::BOARD_MENU;
+                }
+            }
+
             _gui.handleEvent(_event);
         }
     }
@@ -103,6 +115,11 @@ void DMForm::fUpdate(sf::RenderWindow  &window)
     case DMForm::NPC_MENU:
     {
         npc_menu_window->fUpdate(window);
+    }
+    break;
+    case DMForm::BOARD_MENU:
+    {
+
     }
     break;
     case DMForm::BACK:
@@ -126,7 +143,6 @@ void DMForm::fDraw(sf::RenderWindow & window)
         {
             delete npc_menu_window;
             _menu_option = DMForm::NONE;
-            _npc_button_click = false;
         }
     }
     break;
@@ -138,8 +154,12 @@ void DMForm::fDraw(sf::RenderWindow & window)
         {
             delete terrain_menu_window;
             _menu_option = DMForm::NONE;
-            _terrain_button_click = false;
         }
+    }
+    break;
+    case DMForm::BOARD_MENU:
+    {
+
     }
     break;
     }

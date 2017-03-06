@@ -7,7 +7,7 @@ void MeinMenuForm::fInitUIElements()
     auto windowHeight = tgui::bindHeight(_gui);
 
     _theme = std::make_shared<tgui::Theme>("Interface/Game.txt");
-    _main = std::make_shared<tgui::Picture>("Interface/MainMenu.png");
+    _main = std::make_shared<tgui::Picture>("Interface/MainMenu.jpg");
     _main->setSize(tgui::bindMax(1280, windowWidth), tgui::bindMax(800, windowHeight));
     _gui.add(_main);
 
@@ -36,26 +36,24 @@ void MeinMenuForm::fInitUIElements()
     _btn_exit = _theme->load("Button");
     _btn_exit->setSize(275, 50);
     _btn_exit->setPosition(145, 430);
-    _btn_exit->setText("Exit");
+    _btn_exit->setText("Log Out");
     _gui.add(_btn_exit);
 
-    _btn_player->connect("pressed", &MeinMenuForm::fPlayerMode_clicked, this);
-    _btn_dm->connect("pressed", &MeinMenuForm::fDM_Mode_clicked, this);
     _btn_exit->connect("pressed", &MeinMenuForm::fExit_clicked, this);
-}
-void MeinMenuForm::fPlayerMode_clicked()
-{
-    _player_m_button_click = true;
-}
-
-void MeinMenuForm::fDM_Mode_clicked()
-{
-    _dm_m_button_click = true;
 }
 
 void MeinMenuForm::fExit_clicked()
 {
-    _exit_m_button_click = true;
+
+    json request;
+    request["session_id"] = _game_session;
+    std::string response;
+
+    _http_client->fSendRequest(HttpClient::_POST, "/api/userlogout", request.dump());
+    _http_client->fGetResponse(response);
+    std::cout << response;
+
+    display_window = false;
 }
 
 MeinMenuForm::MeinMenuForm(const sf::Event &event, sf::RenderWindow &window, std::string game_session, HttpClient *http_client)
@@ -63,11 +61,8 @@ MeinMenuForm::MeinMenuForm(const sf::Event &event, sf::RenderWindow &window, std
 
     display_window = true;
     _menu_option = NONE;
-    _player_m_button_click = false;
-    _dm_m_button_click = false;
     _http_client = http_client;
     this->_game_session = game_session;
-    window.create(sf::VideoMode(1280, 800), "Dungeons & Dragons");
     _gui.setWindow(window);
     this->_event = event;
     fInitUIElements();
@@ -81,20 +76,27 @@ void MeinMenuForm::fUpdate(sf::RenderWindow  &window)
     {
         while (window.pollEvent(_event))
         {
-            if (_event.type == sf::Event::Closed || _exit_m_button_click)
+            if (_event.type == sf::Event::Closed)
                 window.close();
 
-            if (_dm_m_button_click)
-            {
-                dm_window = new DMForm(_event, window, _game_session, _http_client);
-                _menu_option = DM_MODE;
-            }
-            if (_player_m_button_click)
-            {
-                character_window = new CharacterForm(_event, window, _game_session, _http_client);
-                _menu_option = PLAYER_MODE;
-            }
+            
+                if (_btn_dm->mouseOnWidget(_event.mouseButton.x, _event.mouseButton.y))
+                {
+                    if (_event.type == sf::Event::MouseButtonReleased && _event.mouseButton.button == sf::Mouse::Left)
+                    {
+                        _dm_window = new DMForm(_event, window, _game_session, _http_client);
+                        _menu_option = DM_MODE;
+                    }
+                }
+                if (_btn_player->mouseOnWidget(_event.mouseButton.x, _event.mouseButton.y))
+                {
+                    if (_event.type == sf::Event::MouseButtonReleased && _event.mouseButton.button == sf::Mouse::Left)
+                    {
+                        _menu_option = PLAYER_MODE;
 
+                        _player_window = new PlayerForm(_event, window, _game_session, _http_client);
+                    }
+                }
 
             _gui.handleEvent(_event);
         }
@@ -102,12 +104,12 @@ void MeinMenuForm::fUpdate(sf::RenderWindow  &window)
     break;
     case MeinMenuForm::PLAYER_MODE:
     {
-        character_window->fUpdate(window);
+        _player_window->fUpdate(window);
     }
     break;
     case MeinMenuForm::DM_MODE:
     {
-        dm_window->fUpdate(window);
+        _dm_window->fUpdate(window);
     }
     break;
     case MeinMenuForm::EXIT:
@@ -126,25 +128,23 @@ void MeinMenuForm::fDraw(sf::RenderWindow & window)
     break;
     case MeinMenuForm::PLAYER_MODE:
     {
-        if (character_window->display_window)
-            character_window->fDraw(window);
+        if (_player_window->display_window)
+            _player_window->fDraw(window);
         else
         {
-            delete character_window;
+            delete _player_window;
             _menu_option = MeinMenuForm::NONE;
-            _player_m_button_click = false;
         }
     }
     break;
     case MeinMenuForm::DM_MODE:
     {
-        if (dm_window->display_window)
-            dm_window->fDraw(window);
+        if (_dm_window->display_window)
+            _dm_window->fDraw(window);
         else
         {
-            delete dm_window;
+            delete _dm_window;
             _menu_option = MeinMenuForm::NONE;
-            _dm_m_button_click = false;
         }
     }
     break;

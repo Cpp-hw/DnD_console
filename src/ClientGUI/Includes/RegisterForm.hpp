@@ -4,6 +4,8 @@
 #include <TGUI/TGUI.hpp>
 #include "UserActions.hpp"
 #include "HttpClient.hpp"
+#include <thread>
+
 
 
 class RegisterForm
@@ -22,8 +24,10 @@ private:
     tgui::EditBox::Ptr _editBoxPasswordRe;
     tgui::Button::Ptr  _register_button;
     tgui::Button::Ptr  _back;
-
+    tgui::Button::Ptr  test;
     tgui::ChildWindow::Ptr information_window;
+    tgui::Picture::Ptr _picture;
+
 
     void fRegistration(tgui::EditBox::Ptr username, tgui::EditBox::Ptr email, tgui::EditBox::Ptr password, tgui::EditBox::Ptr re_password);
 

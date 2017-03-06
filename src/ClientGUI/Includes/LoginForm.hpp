@@ -3,6 +3,7 @@
 #include "MeinMenuForm.hpp"
 #include "RegisterForm.hpp"
 
+
 class LoginForm
 {
     enum _selected_menu
@@ -20,7 +21,7 @@ class LoginForm
     // UI elements
     tgui::Theme::Ptr   _theme;
     tgui::EditBox::Ptr _username;
-    tgui::EditBox::Ptr _boxPassword;
+    tgui::EditBox::Ptr _password;
     tgui::Button::Ptr  _login_button;
     tgui::Button::Ptr  _register_button;
     tgui::ListBox::Ptr _terrain_list;

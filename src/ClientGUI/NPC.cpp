@@ -41,7 +41,7 @@ Npc::Npc(json &jsonData)
 {
     _owner = jsonData["id_owner"];
     _name = jsonData["npc"];
-    _type = jsonData["type"];
+    _type = jsonData["id_type"];
     _level = jsonData["level"];
     _hitpoints = jsonData["hitpoints"];
     _strength = jsonData["strength"];
@@ -448,7 +448,7 @@ json Npc::fToJson()
     json npc;
     npc["session_id"] = _owner;
     npc["npc"] = _name;
-    npc["type"] = _type;
+    npc["id_type"] = _type;
     npc["level"] = _level;
     npc["hitpoints"] = _hitpoints;
     npc["strength"] = _strength;

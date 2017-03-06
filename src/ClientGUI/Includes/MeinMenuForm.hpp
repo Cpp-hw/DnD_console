@@ -1,7 +1,7 @@
 #pragma once
 
 #include "DmForm.hpp"
-#include "CharacterForm.hpp"
+#include "PlayerForm.hpp"
 
 
 class MeinMenuForm
@@ -19,8 +19,8 @@ class MeinMenuForm
     
     HttpClient *_http_client;
 
-    DMForm *dm_window;
-    CharacterForm *character_window;
+    DMForm *_dm_window;
+    PlayerForm *_player_window;
 
     // UI elements
     tgui::Theme::Ptr    _theme;
@@ -35,13 +35,9 @@ class MeinMenuForm
     
     _selected_menu _menu_option;
 
-    bool _dm_m_button_click;
-    bool _player_m_button_click;
     bool _exit_m_button_click;
 
     void fInitUIElements();
-    void fPlayerMode_clicked();
-    void fDM_Mode_clicked();
     void fExit_clicked();
 
 public:

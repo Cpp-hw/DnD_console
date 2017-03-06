@@ -26,14 +26,14 @@ public:
     static json fLoadMyNpcs(const std::string &session); // loads full list of my NPCs
     static json fLoadNpc(const std::string &session); // loads one NPC by its id
     static json fEditNpc(json &json_npc); // edits one NPC according to its id
-    static json fDeleteNpc(const std::string &session); // delete NPC by id
+    static json fDeleteNpc(const std::string &session, const std::string &npc_id); // delete NPC by id
 	static json fCreateTerrain(const std::string &session); //method for Terrain creation
 	static json fShowFullListOfTerrains(const std::string &session);
 	static json fLoadMyTerrains(const std::string &session);  //load user terrains
 	static json fLoadTerrain(const std::string &session);     //load switched terrain
 	static json fCreateCharacter(const std::string &session); //method for character creation
 	static json fEditCharacter(json &json_character); //edit character by id
-	static json fDeleteCharacter(const std::string &session); //delete character by id
+	static json fDeleteCharacter(const std::string &session, const std::string &character_id); //delete character by id
 	static json fLoadCharacterByName(const std::string &session); //method for load user character
     static json fLoadMyCharacters(const std::string &session); //method for load user characters
     static json fLoadMyBoards(const std::string &session); // loads full list of my boards

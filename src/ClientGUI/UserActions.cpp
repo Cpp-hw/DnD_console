@@ -20,10 +20,6 @@ json UserActions::fRegistration(std::string username, std::string email, std::st
 {
 	json user_registration_data;  // json registration resualt
 
-	//std::string       user_username;      //  user input login  
-	//std::string       user_password;      //  user input password
-	//std::string       user_email;         //  user input e-mail;
-	//std::string       repeat_password;
 	//const std::regex  validate_email("(\\w+)(\\.|_)?(\\w*)@(\\w+)(\\.(\\w+))+"); // email regex pattern
 	SHA256            sha256;			  // sha256 obj
 
@@ -413,26 +409,10 @@ json UserActions::fEditNpc(json &json_npc)
 /*
  Method for deleting one NPC of mine
  */
-json UserActions::fDeleteNpc(const std::string &session)
+json UserActions::fDeleteNpc(const std::string &session, const std::string &npc_id)
 {
     json request;
     request["session_id"] = session;
-    
-    std::string npc_id;
-    do
-    {
-        std::cout << "Input the NPC's id:\n";
-        std::getline(std::cin, npc_id);
-        try
-        {
-            std::stoi(npc_id);
-        }
-        catch (const std::exception&)
-        {
-            npc_id = "*";
-        }
-    } while (!DataValidator::fValidate(npc_id, DataValidator::SQL_INJECTION));
-    
     request["npc_id"] = npc_id;
     
     return request;
@@ -686,28 +666,10 @@ json UserActions::fLoadBoard(const std::string &session)
     return request;
 }
 
-json UserActions::fDeleteCharacter(const std::string &session)
+json UserActions::fDeleteCharacter(const std::string &session, const std::string &character_id)
 {
-	cin.ignore();
-	cin.clear();
 	json request;
 	request["session_id"] = session;
-
-	std::string character_id;
-	do
-	{
-		std::cout << "Input the Character id:\n";
-		std::getline(std::cin, character_id);
-		try
-		{
-			std::stoi(character_id);
-		}
-		catch (const std::exception&)
-		{
-			character_id = "*";
-		}
-	} while (!DataValidator::fValidate(character_id, DataValidator::SQL_INJECTION));
-
 	request["character_id"] = character_id;
 
 	return request;
